@@ -6,641 +6,602 @@
   <title>富日閣 ｜ 八字命理工作室</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="/_sdk/element_sdk.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    /* 引入專業建議字型 */
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap');
+
     :root {
-      --color-cream: #1a1f2e;
-      --color-warm-beige: #0f1419;
+      --color-bg: #1a1f2e;
+      --color-surface: #0f1419;
       --color-text: #e8dcc8;
       --color-accent: #c9a961;
       --color-muted: #6b7280;
     }
-  </style>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            cream: '#1a1f2e',
-            'warm-beige': '#0f1419',
-            'text-main': '#e8dcc8',
-            accent: '#c9a961',
-            muted: '#6b7280'
-          },
-          fontFamily: {
-            serif: ['Noto Serif TC', 'serif'],
-            sans: ['Noto Sans TC', 'sans-serif']
-          }
-        }
-      }
+
+    body {
+      /* 全文採用思源宋體，增加人文底蘊 */
+      font-family: 'Noto Serif TC', serif;
+      background: linear-gradient(135deg, #1a1f2e 0%, #1a1f2e 100%);
+      color: var(--color-text);
+      /* 專業建議：1.8 行高 */
+      line-height: 1.8;
     }
-  </script>
+
+    h1, h2, h3 {
+      font-family: 'Playfair Display', 'Noto Serif TC', serif;
+      font-weight: 400;
+    }
+
+    .tab-btn {
+      font-family: 'Noto Sans TC', sans-serif;
+      color: var(--color-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--color-accent);
+    }
+
+    .tab-btn.active {
+      color: var(--color-accent);
+      border-bottom-color: var(--color-accent);
+    }
+
+    .card {
+      background-color: rgba(15, 20, 25, 0.8);
+      border: 1px solid rgba(201, 169, 97, 0.2);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .card:hover {
+      border-color: rgba(201, 169, 97, 0.4);
+      box-shadow: 0 4px 12px rgba(201, 169, 97, 0.1);
+    }
+
+    .faq-content {
+      max-height: 1000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .faq-content.hidden {
+      max-height: 0;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    nav, header, footer {
+      border-color: rgba(201, 169, 97, 0.1) !important;
+    }
+
+    /* 確保專業建議的 16px 基準字體應用於主要內文 */
+    .content-text {
+      font-size: 1rem; /* 16px */
+    }
+  </style>
 </head>
-<body class="h-full bg-cream text-text-main font-sans overflow-auto">
-  <div id="app" class="w-full h-full overflow-auto">
-    <!-- Header -->
-    <header class="text-center py-12 px-6 border-b border-warm-beige">
-      <div class="mb-4">
-        <span class="inline-block w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4">
-          <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"/>
-          </svg>
-        </span>
+<body class="h-full overflow-auto">
+  <div id="app" class="w-full h-full">
+    <header class="py-16 px-6 text-center border-b">
+      <div class="mb-6">
+        <div class="w-16 h-16 rounded-full mx-auto mb-6" style="background: linear-gradient(135deg, #c9a961 0%, #6b7280 100%);"></div>
       </div>
-      <h1 id="studio-name" class="font-serif text-3xl md:text-4xl font-semibold tracking-wider mb-4" style="color: var(--color-accent);">富日閣</h1>
-      <p class="text-muted text-sm tracking-widest mb-6">八字命理工作室</p>
-      <p id="tagline" class="max-w-md mx-auto text-text-main/80 leading-relaxed text-sm">
-        命不是用來被預言，而是用來被理解；<br>
-        不是被動承受，而是主動選擇。
+      <h1 id="studio-name" class="text-5xl md:text-6xl font-light tracking-widest mb-6" style="letter-spacing: 0.15em; color: var(--color-accent);">富日閣</h1>
+      <p class="text-xs tracking-widest mb-8" style="color: var(--color-muted);">八字命理工作室</p>
+      <p id="tagline" class="max-w-md mx-auto leading-relaxed text-base font-light">
+        命不是用來被預言，而是用來被理解；<br>不是被動承受，而是主動選擇。
       </p>
     </header>
 
-    <!-- Navigation Tabs -->
-    <nav class="sticky top-0 bg-cream/95 backdrop-blur-sm border-b border-warm-beige z-10">
+    <nav class="sticky top-0 z-10" style="background-color: rgba(26, 31, 46, 0.95); backdrop-filter: blur(8px);">
       <div class="max-w-4xl mx-auto px-4">
         <div class="flex overflow-x-auto scrollbar-hide py-1" id="tab-nav">
-          <button class="tab-btn active flex-shrink-0 px-4 py-3 text-sm font-medium transition-all" data-tab="services">服務與價目</button>
-          <button class="tab-btn flex-shrink-0 px-4 py-3 text-sm font-medium transition-all" data-tab="booking">預約須知</button>
-          <button class="tab-btn flex-shrink-0 px-4 py-3 text-sm font-medium transition-all" data-tab="faq">常見問題</button>
-          <button class="tab-btn flex-shrink-0 px-4 py-3 text-sm font-medium transition-all" data-tab="aftercare">論命之後</button>
-          <button class="tab-btn flex-shrink-0 px-4 py-3 text-sm font-medium transition-all" data-tab="preparation">諮詢準備</button>
+          <button class="tab-btn active flex-shrink-0 px-4 py-3 text-sm font-medium transition-all tracking-wide" data-tab="intro">老師簡介</button>
+          <button class="tab-btn flex-shrink-0 px-4 py-3 text-sm font-medium transition-all tracking-wide" data-tab="services">服務與價目</button>
+          <button class="tab-btn flex-shrink-0 px-4 py-3 text-sm font-medium transition-all tracking-wide" data-tab="booking">預約須知</button>
+          <button class="tab-btn flex-shrink-0 px-4 py-3 text-sm font-medium transition-all tracking-wide" data-tab="faq">常見問題</button>
+          <button class="tab-btn flex-shrink-0 px-4 py-3 text-sm font-medium transition-all tracking-wide" data-tab="aftercare">論命之後</button>
+          <button class="tab-btn flex-shrink-0 px-4 py-3 text-sm font-medium transition-all tracking-wide" data-tab="preparation">諮詢準備</button>
         </div>
       </div>
     </nav>
 
-    <!-- Content Container -->
-    <main class="max-w-4xl mx-auto px-4 py-8 pb-16">
+    <main class="max-w-4xl mx-auto px-4 py-12 pb-16">
       
-      <!-- Tab 1: Services -->
-      <section id="services" class="tab-content">
-        <div class="mb-8">
-          <h2 class="font-serif text-xl font-semibold mb-2">服務與價目表</h2>
-          <p class="text-muted text-sm">以八字為本，溫和解析人生方向，適合想更理解自己的人</p>
-        </div>
-
-        <!-- 🪷 Basic Services -->
+      <section id="intro" class="tab-content">
         <div class="mb-10">
-          <h3 class="text-sm font-medium text-accent mb-4 flex items-center">
-            <span class="mr-2">🪷</span>
-            八字基礎服務
-          </h3>
-          
-          <div class="space-y-4">
-            <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-              <div class="flex justify-between items-start mb-3">
-                <h4 class="font-medium">八字論命</h4>
-                <span class="text-accent font-medium">NT$800</span>
-              </div>
-              <p class="text-sm text-muted leading-relaxed">
-                適合初次接觸命理，了解整體人生走向與性格特質。
-              </p>
-            </div>
-
-            <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-              <div class="flex justify-between items-start mb-3">
-                <h4 class="font-medium">八字命盤解析</h4>
-                <span class="text-accent font-medium">NT$2,000</span>
-              </div>
-              <p class="text-sm text-muted leading-relaxed">
-                深入解析命盤結構，包含大運、流年、五行、十神與人生重點課題。
-              </p>
-            </div>
-          </div>
+          <h2 class="text-3xl font-light mb-2" style="letter-spacing: 0.05em; color: var(--color-accent);">老師簡介</h2>
+          <p class="text-sm" style="color: var(--color-muted);">認識富日閣的命理師</p>
         </div>
 
-        <!-- 🌿 Life Theme Analysis -->
-        <div class="mb-10">
-          <h3 class="text-sm font-medium text-accent mb-4 flex items-center">
-            <span class="mr-2">🌿</span>
-            人生專項解析
-          </h3>
-          
-          <div class="space-y-4">
-            <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-              <div class="flex justify-between items-start mb-3">
-                <h4 class="font-medium">姻緣分析</h4>
-                <span class="text-accent font-medium">NT$1,200</span>
-              </div>
-              <p class="text-sm text-muted leading-relaxed">
-                解析感情模式、適合的伴侶特質與相處提醒。
-              </p>
-            </div>
-
-            <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-              <div class="flex justify-between items-start mb-3">
-                <h4 class="font-medium">事業財運分析</h4>
-                <span class="text-accent font-medium">NT$1,500</span>
-              </div>
-              <p class="text-sm text-muted leading-relaxed">
-                協助看清事業方向、財運節奏與適合的發展方式。
-              </p>
-            </div>
-
-            <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-              <div class="flex justify-between items-start mb-3">
-                <h4 class="font-medium">全方位命理解析</h4>
-                <span class="text-accent font-medium">NT$2,500</span>
-              </div>
-              <p class="text-sm text-muted leading-relaxed">
-                涵蓋人生各面向，適合在人生轉折期進行完整梳理。
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 🧭 Life & Feng Shui -->
-        <div class="mb-10">
-          <h3 class="text-sm font-medium text-accent mb-4 flex items-center">
-            <span class="mr-2">🧭</span>
-            生活與風水
-          </h3>
-          
-          <div class="space-y-4">
-            <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-              <div class="flex justify-between items-start mb-3">
-                <h4 class="font-medium">風水諮詢</h4>
-                <span class="text-accent font-medium">NT$1,000</span>
-              </div>
-              <p class="text-sm text-muted leading-relaxed">
-                從生活空間出發，調整能量流動，讓日常更順。
-              </p>
-            </div>
-
-            <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-              <div class="flex justify-between items-start mb-3">
-                <h4 class="font-medium">姓名學</h4>
-                <span class="text-accent font-medium">NT$1,000</span>
-              </div>
-              <p class="text-sm text-muted leading-relaxed">
-                從名字看能量與性格，提供溫和調整建議。
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 👶 Baby & Marriage -->
-        <div class="mb-10">
-          <h3 class="text-sm font-medium text-accent mb-4 flex items-center">
-            <span class="mr-2">👶</span>
-            寶寶與婚姻相關
-          </h3>
-          
-          <div class="space-y-4">
-            <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-              <div class="flex justify-between items-start mb-3">
-                <h4 class="font-medium">寶寶取名（不含命盤）</h4>
-                <span class="text-accent font-medium">NT$2,000</span>
-              </div>
-            </div>
-
-            <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-              <div class="flex justify-between items-start mb-3">
-                <h4 class="font-medium">寶寶取名（含命盤）</h4>
-                <span class="text-accent font-medium">NT$3,800</span>
-              </div>
-              <p class="text-sm text-muted leading-relaxed">
-                為孩子取一個承載祝福、結構平衡且耐久的人生之名。
-              </p>
-            </div>
-
-            <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-              <div class="flex justify-between items-start mb-3">
-                <h4 class="font-medium">結婚擇日</h4>
-                <span class="text-accent font-medium">NT$2,000</span>
-              </div>
-              <p class="text-sm text-muted leading-relaxed">
-                以雙方命盤為本，選擇適合關係長期運行的日辰與時辰。
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 🏔 Advanced Services -->
-        <div>
-          <h3 class="text-sm font-medium text-accent mb-4 flex items-center">
-            <span class="mr-2">🏔</span>
-            進階與專案服務（採面議制）
-          </h3>
-          
-          <div class="bg-warm-beige/30 rounded-2xl p-6 border border-warm-beige">
-            <p class="text-sm text-muted mb-5 leading-relaxed">
-              以下服務屬於高度客製與情境判斷，將於初步溝通後評估是否適合進行。
-            </p>
+        <div class="card p-8 mb-6">
+          <div class="flex-1">
+            <h3 id="teacher-name" class="text-2xl font-light mb-1" style="letter-spacing: 0.05em; color: var(--color-accent);">洪耀麟</h3>
+            <p class="text-xs mb-6" style="color: var(--color-accent); letter-spacing: 0.05em;">命理與風水的理性實踐者</p>
             
-            <div class="space-y-5">
-              <div>
-                <h4 class="font-medium mb-2">地理勘輿｜面議</h4>
-                <p class="text-sm text-muted leading-relaxed">
-                  實地或圖資判讀，評估環境形勢、氣場配置與長期影響。
-                </p>
-              </div>
+            <p id="teacher-bio" class="content-text leading-relaxed mb-4" style="color: var(--color-text);">
+              於三十歲時，正式投入命理與風水領域的系統性學習，師承黃榮南先師，循正統體系研修正三元地理學，建立完整而穩固的理論基礎。其後，深入研究三元水局與二十八宿之吉凶運用，並學習地理風水中龍脈尋穴、立向定穴等核心方法，重視實地觀察與理法驗證，而非流於形式或傳說。<br><br>
+              在時間與命運的研究上，長期專注於擇日天文勀則與八字天命推演，透過大量實務案例反覆驗證命理模型的適用性。至今累積超過二十五年的研究與論命經驗，處理過各類人生關鍵課題，包含方向選擇、運勢轉換與重要時點判斷。<br><br>
+              研修歷程中，廣泛參考古代命理典籍與歷史實例，並將其轉化為符合現代生活節奏的判斷方式，致力於協助來訪者以更清晰、理性的角度理解自身條件與人生節奏，做出合適且可行的選擇。<br><br>
+              末蒙師門賜字號「慶昇」，承續慶字輩系譜。始終秉持正統傳承與專業自律，不以恐嚇、不過度渲染，強調命理作為「理解趨勢與風險的工具」，而非決定人生的唯一答案。
+            </p>
 
-              <div>
-                <h4 class="font-medium mb-2">開運印章學｜面議</h4>
-                <p class="text-sm text-muted leading-relaxed">
-                  依個人命盤與使用目的設計，重視實用性與長期穩定性。
-                </p>
+            <div id="bio-stats" class="mt-8 flex gap-6">
+              <div class="text-center">
+                <p class="text-2xl font-light" style="color: var(--color-accent);">40+</p>
+                <p class="text-xs" style="color: var(--color-muted);">年從業經驗</p>
               </div>
-
-              <div>
-                <h4 class="font-medium mb-2">草人祭改（調整性儀式）｜面議</h4>
-                <p class="text-sm text-muted leading-relaxed">
-                  屬於特定情境下的調整性命理應用，並非例行服務。將依個人命盤結構、當下運勢與實際處境進行完整評估，確認是否適合介入。富日閣不以恐嚇或承諾結果為前提，而是謹慎處理人生卡關狀態中，可能需要「結構轉換」的時機。
-                </p>
+              <div class="text-center">
+                <p class="text-2xl font-light" style="color: var(--color-accent);">1000+</p>
+                <p class="text-xs" style="color: var(--color-muted);">人次諮詢</p>
               </div>
+              <div class="text-center">
+                <p class="text-2xl font-light" style="color: var(--color-accent);">100%</p>
+                <p class="text-xs" style="color: var(--color-muted);">保密承諾</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="card p-6">
+            <h4 class="font-medium mb-3 text-lg" style="color: var(--color-accent);">工作理念</h4>
+            <p class="content-text leading-relaxed" style="color: var(--color-text);">
+              以命理作為理解人生節奏與風險的工具，透過清晰分析與實務經驗，協助做出適合當下與長遠發展的選擇。
+            </p>
+          </div>
+          <div class="card p-6">
+            <h4 class="font-medium mb-3 text-lg" style="color: var(--color-accent);">核心承諾</h4>
+            <p class="content-text leading-relaxed" style="color: var(--color-text);">
+              秉持專業與正統傳承，不製造恐慌、不過度渲染，提供理性、誠實且實踐的命理建議。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="services" class="tab-content hidden">
+        <div class="mb-10">
+          <h2 class="text-3xl font-light mb-2" style="letter-spacing: 0.05em; color: var(--color-accent);">服務與價目表</h2>
+          <p class="text-sm" style="color: var(--color-muted);">以八字為本，溫和解析人生方向，適合想更理解自己的人</p>
+        </div>
+
+        <div class="mb-12">
+          <h3 class="text-xs font-medium mb-5 flex items-center" style="color: var(--color-accent); letter-spacing: 0.1em;">
+            <span class="mr-2">🪷</span>八字基礎服務
+          </h3>
+          <div class="space-y-4">
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h4 class="font-medium text-lg">八字論命-初批</h4>
+                  <p class="text-xs mt-1" style="color: var(--color-muted);">八字命盤排列</p>
+                </div>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$800</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">適合初次接觸命理，了解整體人生走向與性格特質。</p>
+            </div>
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h4 class="font-medium text-lg">八字論命-深批</h4>
+                  <p class="text-xs mt-1" style="color: var(--color-muted);">八字運勢分析</p>
+                </div>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$1,000</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">精闢八字命格，將其論命與論運做完整的分析，調和自己人際關係，提昇自我生活品質。</p>
+            </div>
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h4 class="font-medium text-lg">八字命盤解析</h4>
+                  <p class="text-xs mt-1" style="color: var(--color-muted);">流年造命命書</p>
+                </div>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$2,000</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">視為自我專業的終身指南針，深入解析命盤結構，包含大運、流年、財運、感情、健康與人生重要課題。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-12">
+          <h3 class="text-xs font-medium mb-5 flex items-center" style="color: var(--color-accent); letter-spacing: 0.1em;">
+            <span class="mr-2">📅</span>擇日選吉
+          </h3>
+          <div class="space-y-4">
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-lg">婚嫁擇日</h4>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$3,600</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">訂婚所需注意之時辰事項、當日須避開之凶煞、結婚應該擇取之吉時、婚禮中該做之大方向，以及歸寧擇日的重要性。</p>
+            </div>
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-lg">剖腹生產時辰</h4>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$3,800</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">需有胎兒預產期、父母生辰，依照父母八字命盤的推算出寶寶生產之良辰吉時。</p>
+            </div>
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-lg">其他擇日</h4>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$1,000</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">開市開工，入宅安床，開刀醫病，移涉祈福吉時良辰。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-12">
+          <h3 class="text-xs font-medium mb-5 flex items-center" style="color: var(--color-accent); letter-spacing: 0.1em;">
+            <span class="mr-2">🧭</span>風水與姓名
+          </h3>
+          <div class="space-y-4">
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-lg">風水諮詢</h4>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$1,000</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">從生活空間出發，調整能量流動，讓日常更順暢。</p>
+            </div>
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-lg">姓名學</h4>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$1,000</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">從姓名結構與數理配置出發，分析名字所呈現的整體特質與發展傾向，並提供具體、可行的調整建議。</p>
+            </div>
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-lg">改名取偏名</h4>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$1,800</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">鑑定姓名之吉凶後，依個人之八字利弊，再決定是否改名或者使用偏名來避免改名之麻煩，讓自己擁有福緣和時運、享受人生。</p>
+            </div>
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-lg">企業公司命名改名</h4>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$3,600</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">需要一個相當吉利與有力之名，讓公司的業績與營運能一直領先，需附同公司之性質，以及負責人的基本詳細資料，並且了解公司之趨吉避凶方向的提供。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-12">
+          <h3 class="text-xs font-medium mb-5 flex items-center" style="color: var(--color-accent); letter-spacing: 0.1em;">
+            <span class="mr-2">👶</span>寶寶取名
+          </h3>
+          <div class="space-y-4">
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h4 class="font-medium text-lg">寶寶取名（不含命盤）</h4>
+                  <p class="text-xs mt-1" style="color: var(--color-muted);">配合父母運勢</p>
+                </div>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$2,000</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">依出生時間與父母八字時運，從姓名數理結構進行整體配置，提供穩定且適用的人生姓名建議。</p>
+            </div>
+            <div class="card p-6">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h4 class="font-medium text-lg">寶寶取名（含命盤）</h4>
+                  <p class="text-xs mt-1" style="color: var(--color-muted);">完整命盤分析</p>
+                </div>
+                <span class="text-base font-medium" style="color: var(--color-accent);">NT$3,800</span>
+              </div>
+              <p class="content-text" style="color: var(--color-muted);">以寶寶生辰八字建立命盤，分析五行與先天特質，結合父母命盤，透過字義、音律與數理進行平衡，為孩子打造具長期適用性的人生之名。</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-xs font-medium mb-5 flex items-center" style="color: var(--color-accent); letter-spacing: 0.1em;">
+            <span class="mr-2">🏔</span>進階與專案服務（採面議制）
+          </h3>
+          <div class="card p-6">
+            <p class="content-text mb-6" style="color: var(--color-muted);">下列服務屬於高度客製與情境判斷，將於初步溝通後評估是否適合進行。</p>
+            <div class="space-y-6">
               <div>
-                <h4 class="font-medium mb-2">生基（長期格局規劃）｜面議</h4>
-                <p class="text-sm text-muted leading-relaxed">
-                  為高階命理與風水應用之一，重視長期運勢結構與人生節奏的重新配置。此項服務並非用於短期翻轉，而是針對條件成熟、方向明確者進行審慎評估後，才會建議是否進行。
-                </p>
+                <h4 class="font-medium mb-2 text-lg">地理勘輿｜面議</h4>
+                <ul class="space-y-2 content-text" style="color: var(--color-muted);">
+                  <li>• 陽宅風水鑑定與破解不利陰煞，擇局吉地方位與謝土</li>
+                  <li>• 企業總部、辦公室、商店、子公司風水鑑定佈局方位與謝土</li>
+                  <li>• 房屋裝潢開工、工地、建地、制煞、破解不利方位、風水勘輿與佈局謝土</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-medium mb-2 text-lg">開運印鑑學｜面議</h4>
+                <p class="content-text" style="color: var(--color-muted);">開運印鑑，需要經過特殊的開光，依個人命盤與使用目的設計，重視實用性與長期穩定性。</p>
+              </div>
+              <div>
+                <h4 class="font-medium mb-2 text-lg">草人祭改（調整性儀式）｜面議</h4>
+                <p class="content-text" style="color: var(--color-muted);">屬於特定情境下的調整性命理應用，非常稀有服務。將依個人命盤結構、當下運勢與實際處境進行完整評估，確認是否適合介入。富日閣不以恐嚇或承諾結果為前提，而是謹慎處理人生卡關狀況，理解何時需要「結構轉換」的時機。</p>
+              </div>
+              <div>
+                <h4 class="font-medium mb-2 text-lg">生基（長期格局規劃）｜面議</h4>
+                <p class="content-text" style="color: var(--color-muted);">為高階命理與風水應用之一，重視長期運勢結構與人生節奏的重新配置。此項服務並非用於短期轉運，而是針對條件成熟、方向明確者進行審慎評估後，才會建議是否進行。</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Tab 2: Booking -->
       <section id="booking" class="tab-content hidden">
-        <div class="mb-8">
-          <h2 class="font-serif text-xl font-semibold mb-2">預約須知</h2>
+        <div class="mb-10">
+          <h2 class="text-3xl font-light mb-2" style="letter-spacing: 0.05em; color: var(--color-accent);">預約須知</h2>
         </div>
-
         <div class="space-y-6">
-          <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-            <h3 class="font-medium mb-4">預約方式</h3>
-            <div class="text-sm text-muted leading-relaxed space-y-3">
-              <p>採 <span class="text-text-main font-medium">預約制</span>，請提前聯繫確認時段。</p>
-              <p>請透過 <span class="text-text-main font-medium">LINE 官方帳號</span> 預約，告知您希望諮詢的主題與偏好時段。收到訊息後，我們會在 1-2 個工作天內回覆確認。</p>
-              <p>若需取消或改期，請於 <span class="text-text-main font-medium">24 小時前</span>告知。</p>
+          <div class="card p-8">
+            <h3 class="font-medium mb-4 text-lg">預約方式</h3>
+            <div class="content-text space-y-4" style="color: var(--color-muted);">
+              <p>採 <span style="color: var(--color-text);">預約制</span>，請提前聯繫確認時段。</p>
+              <p>請透過 <span style="color: var(--color-text);">LINE 官方帳號</span> 預約，告知您希望諮詢的主題與偏好時段。收到訊息後，我們會在 1-2 個工作天內回覆確認。</p>
+              <p>若需取消或改期，請於 <span style="color: var(--color-text);">24 小時前</span>告知。</p>
               <p>命理解析屬於個人化服務，請準時赴席，讓時間完整留給你。</p>
-              <p>若臨時身心狀態不佳，可安心改期，我們理解人生的變化。</p>
+              <p>若臨時身體狀態不佳，可安心改期，我們理解人生的變化。</p>
             </div>
           </div>
-
-          <div class="bg-warm-beige/30 rounded-2xl p-6 border border-warm-beige">
-            <h3 class="font-medium mb-3">關於時間的約定</h3>
-            <p class="text-sm text-muted leading-relaxed">
+          <div class="card p-8">
+            <h3 class="font-medium mb-3 text-lg">關於時間的約定</h3>
+            <p class="content-text" style="color: var(--color-muted);">
               每次諮詢都是雙方專注投入的時間。命理解析屬於個人化服務，預留時段讓彼此都能珍惜這段對話的機會。如有特殊狀況，歡迎提前溝通。
             </p>
           </div>
         </div>
       </section>
 
-      <!-- Tab 3: FAQ -->
       <section id="faq" class="tab-content hidden">
-        <div class="mb-8">
-          <h2 class="font-serif text-xl font-semibold mb-2">常見問題</h2>
-          <p class="text-muted text-sm">初次接觸命理的朋友，可能會有這些疑問</p>
+        <div class="mb-10">
+          <h2 class="text-3xl font-light mb-2" style="letter-spacing: 0.05em; color: var(--color-accent);">常見問題</h2>
+          <p class="text-xs" style="color: var(--color-muted);">初次接觸命理的朋友，可能會有這些疑惑</p>
         </div>
-
         <div class="space-y-4">
-          <div class="bg-warm-beige rounded-2xl shadow-sm border border-warm-beige/50 overflow-hidden">
-            <button class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
-              <span class="font-medium pr-4">我需要「相信」命理才能諮詢嗎？</span>
-              <svg class="w-5 h-5 text-muted flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/>
-              </svg>
+          <div class="card overflow-hidden">
+            <button class="w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
+              <span class="font-medium text-lg">我需要「相信」命理才能諮詢嗎？</span>
+              <svg class="w-4 h-4 flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div class="faq-content hidden px-6 pb-5">
-              <p class="text-sm text-muted leading-relaxed">
-                不需要。命理是一種觀察與分析的工具，就像健康檢查報告一樣，你不需要「相信」它才能閱讀它。保持開放但理性的態度，反而更能從諮詢中獲得有意義的觀點。懷疑與提問都是歡迎的。
-              </p>
+            <div class="faq-content px-6 pb-5 hidden">
+              <p class="content-text" style="color: var(--color-muted);">不需要。命理是一種觀察與分析的工具，就像健康檢查報告一樣，你不需要「相信」它才能閱讀它。保持開放但理性的態度，反而更能從諮詢中獲得有意義的觀點。懷疑與提問都是歡迎的。</p>
             </div>
           </div>
-
-          <div class="bg-warm-beige rounded-2xl shadow-sm border border-warm-beige/50 overflow-hidden">
-            <button class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
-              <span class="font-medium pr-4">會不會聽到很負面的預言？</span>
-              <svg class="w-5 h-5 text-muted flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/>
-              </svg>
+          <div class="card overflow-hidden">
+            <button class="w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
+              <span class="font-medium text-lg">會不會聽到負面的預言？</span>
+              <svg class="w-4 h-4 flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div class="faq-content hidden px-6 pb-5">
-              <p class="text-sm text-muted leading-relaxed">
-                這裡不做恐嚇式的預言。命盤呈現的是傾向與可能性，不是不可改變的定數。我會誠實說明可能需要注意的地方，但重點在於「如何理解」和「可以怎麼做」，而不是製造焦慮。如果有任何讓你不舒服的地方，隨時可以暫停或提問。
-              </p>
+            <div class="faq-content px-6 pb-5 hidden">
+              <p class="content-text" style="color: var(--color-muted);">這裡不做恐嚇式的預言。命盤呈現的是傾向與可能性，不是不可改變的定數。我會誠實說明可能需要注意的地方，但重點在於「如何理解」和「可以怎麼做」，而不是製造焦慮。如果有任何讓你不舒服的地方，隨時可以暫停或提問。</p>
             </div>
           </div>
-
-          <div class="bg-warm-beige rounded-2xl shadow-sm border border-warm-beige/50 overflow-hidden">
-            <button class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
-              <span class="font-medium pr-4">人生低潮時適合諮詢嗎？</span>
-              <svg class="w-5 h-5 text-muted flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/>
-              </svg>
+          <div class="card overflow-hidden">
+            <button class="w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
+              <span class="font-medium text-lg">人生低潮時適合諮詢嗎？</span>
+              <svg class="w-4 h-4 flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div class="faq-content hidden px-6 pb-5">
-              <p class="text-sm text-muted leading-relaxed">
-                視情況而定。如果你正處於急性情緒危機，建議先尋求心理諮商或專業協助。命理諮詢適合在情緒相對穩定、能夠接收資訊並思考的狀態下進行。如果只是人生遇到困難、需要另一個角度看事情，那麼諮詢可能會有幫助。不確定的話，可以先聊聊你的狀況。
-              </p>
+            <div class="faq-content px-6 pb-5 hidden">
+              <p class="content-text" style="color: var(--color-muted);">視情況判定。如果你正處於急性情緒危機，建議先尋求心理諮商或專業協助。命理諮詢適合在情緒相對穩定、能夠接受資訊並思考的狀態下進行。如果只是人生遇到困難、需要另一個角度看事情，那麼諮詢可能會有幫助。不確定的話，可以先聊聊你的狀況。</p>
             </div>
           </div>
-
-          <div class="bg-warm-beige rounded-2xl shadow-sm border border-warm-beige/50 overflow-hidden">
-            <button class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
-              <span class="font-medium pr-4">諮詢內容會保密嗎？</span>
-              <svg class="w-5 h-5 text-muted flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/>
-              </svg>
+          <div class="card overflow-hidden">
+            <button class="w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
+              <span class="font-medium text-lg">諮詢內容會保密嗎？</span>
+              <svg class="w-4 h-4 flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div class="faq-content hidden px-6 pb-5">
-              <p class="text-sm text-muted leading-relaxed">
-                絕對保密。您的個人資料與諮詢內容不會對外揭露，也不會用於任何其他用途。這是基本的職業倫理，也是信任的基礎。
-              </p>
+            <div class="faq-content px-6 pb-5 hidden">
+              <p class="content-text" style="color: var(--color-muted);">絕對保密。您的個人資料與諮詢內容不會對外揭露，也不會用於任何其他用途。這是基本的職業倫理，也是信任的基礎。</p>
             </div>
           </div>
-
-          <div class="bg-warm-beige rounded-2xl shadow-sm border border-warm-beige/50 overflow-hidden">
-            <button class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
-              <span class="font-medium pr-4">可以幫別人問命嗎？</span>
-              <svg class="w-5 h-5 text-muted flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/>
-              </svg>
+          <div class="card overflow-hidden">
+            <button class="w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
+              <span class="font-medium text-lg">可以幫別人問命嗎？</span>
+              <svg class="w-4 h-4 flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div class="faq-content hidden px-6 pb-5">
-              <p class="text-sm text-muted leading-relaxed">
-                原則上，命理諮詢最好由當事人親自進行。如果是想了解家人（如子女、父母）的狀況以促進相處，可以在說明緣由後討論。但不接受在對方不知情的情況下，單方面詢問伴侶或他人的命盤。
-              </p>
+            <div class="faq-content px-6 pb-5 hidden">
+              <p class="content-text" style="color: var(--color-muted);">原則上，命理諮詢最好由當事人親自進行。如果是想了解親人（如子女、父母）的狀況以促進相處，可以說明緣由後討論。但不接受在對方不知情的情況下，單方面詢問伴侶或他人的命盤。</p>
             </div>
           </div>
-
-          <div class="bg-warm-beige rounded-2xl shadow-sm border border-warm-beige/50 overflow-hidden">
-            <button class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
-              <span class="font-medium pr-4">命理跟心理諮商有什麼不同？</span>
-              <svg class="w-5 h-5 text-muted flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/>
-              </svg>
+          <div class="card overflow-hidden">
+            <button class="w-full px-6 py-5 text-left flex items-center justify-between" onclick="toggleFaq(this)">
+              <span class="font-medium text-lg">命理跟心理諮商有什麼不同？</span>
+              <svg class="w-4 h-4 flex-shrink-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div class="faq-content hidden px-6 pb-5">
-              <p class="text-sm text-muted leading-relaxed">
-                命理提供的是一種結構性的自我理解框架，從時間與格局的角度看人生主題。心理諮商則著重情緒處理、創傷療癒與行為改變。兩者可以互補，但不能互相取代。如果你有明確的心理困擾，建議優先尋求心理專業協助。
-              </p>
+            <div class="faq-content px-6 pb-5 hidden">
+              <p class="content-text" style="color: var(--color-muted);">命理提供的是一種結構性的自我理解框架，從時間與格局的角度看人生主題。心理諮商則著重情緒處理、創傷療癒與行為改變。兩者可以互補，但不能互相取代。如果你有明確的心理困擾，建議優先尋求心理專業協助。</p>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Tab 4: Aftercare -->
       <section id="aftercare" class="tab-content hidden">
-        <div class="mb-8">
-          <h2 class="font-serif text-xl font-semibold mb-2">論命之後</h2>
-          <p class="text-muted text-sm">諮詢結束後，如何與這些資訊共處</p>
+        <div class="mb-10">
+          <h2 class="text-3xl font-light mb-2" style="letter-spacing: 0.05em; color: var(--color-accent);">論命之後</h2>
+          <p class="text-xs" style="color: var(--color-muted);">諮詢結束後，如何與這些資訊共處</p>
         </div>
-
         <div class="space-y-6">
-          <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-            <div class="flex items-start mb-4">
-              <span class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mr-4 flex-shrink-0">
-                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </span>
-              <div>
-                <h3 class="font-medium mb-2">命理是參考，不是答案</h3>
-                <p class="text-sm text-muted leading-relaxed">
-                  諮詢提供的是一種觀看自己的角度，幫助你理解傾向與可能性。但人生的選擇權，始終在你手上。命盤不會替你做決定，也不應該成為逃避責任的藉口。
-                </p>
-              </div>
-            </div>
+          <div class="card p-8">
+            <h3 class="font-medium mb-4 text-lg">命理是參考，不是答案</h3>
+            <p class="content-text" style="color: var(--color-muted);">諮詢提供的是一種觀看自己的角度，幫助你理解傾向與可能性。但人生的選擇權，始終在你手上。命盤不會替你做決定，也不應該成為逃避責任的藉口。</p>
           </div>
-
-          <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-            <div class="flex items-start mb-4">
-              <span class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mr-4 flex-shrink-0">
-                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </span>
-              <div>
-                <h3 class="font-medium mb-2">給自己沉化的時間</h3>
-                <p class="text-sm text-muted leading-relaxed">
-                  諮詢後可能會有很多想法湧現，這是正常的。不需要立刻做出什麼改變或決定。讓這些資訊沉澱，在日常生活中慢慢觀察、驗證，找到對你有意義的部分。
-                </p>
-              </div>
-            </div>
+          <div class="card p-8">
+            <h3 class="font-medium mb-4 text-lg">給自己沉化的時間</h3>
+            <p class="content-text" style="color: var(--color-muted);">諮詢後可能會有很多想法湧現，這是正常的。不需要立刻做出什麼改變或決定。讓這些資訊沉澱，在日常生活中慢慢觀察、驗證，找到對你有意義的部分。</p>
           </div>
-
-          <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-            <div class="flex items-start mb-4">
-              <span class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mr-4 flex-shrink-0">
-                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                </svg>
-              </span>
-              <div>
-                <h3 class="font-medium mb-2">歡迎後續提問</h3>
-                <p class="text-sm text-muted leading-relaxed">
-                  如果諮詢後有任何疑問，或是在生活中遇到相關的情境想要討論，歡迎隨時聯繫。簡短的問題可以透過訊息回覆，較複雜的議題可以安排追蹤諮詢。
-                </p>
-              </div>
-            </div>
+          <div class="card p-8">
+            <h3 class="font-medium mb-4 text-lg">歡迎後續提問</h3>
+            <p class="content-text" style="color: var(--color-muted);">如果諮詢後有任何疑問，或是在生活中遇到相關的情境想要討論，歡迎隨時聯繫。簡短的問題可以透過訊息回覆，較複雜的議題可以安排追蹤諮詢。</p>
           </div>
-
-          <div class="bg-warm-beige/30 rounded-2xl p-6 border border-warm-beige">
-            <h3 class="font-medium mb-4 text-center">一個提醒</h3>
-            <p class="text-sm text-muted leading-relaxed text-center max-w-lg mx-auto">
+          <div class="card p-8 text-center">
+            <h3 class="font-medium mb-4 text-lg" style="color: var(--color-accent);">一個提醒</h3>
+            <p class="content-text" style="color: var(--color-text);">
               「命」這個字，在這裡的意義不是宿命，而是理解自己的一種方式。<br><br>
-              理解之後，你依然可以選擇順應、調整，或者挑戰。<br>
-              最終，活出什麼樣的人生，是你自己決定。
+              理解之後，你仍然可以選擇順應、調整，或者挑戰。<br>
+              最後，活出什麼樣的人生，是你自己決定。
             </p>
           </div>
         </div>
       </section>
 
-      <!-- Tab 5: Preparation -->
       <section id="preparation" class="tab-content hidden">
-        <div class="mb-8">
-          <h2 class="font-serif text-xl font-semibold mb-2">諮詢準備</h2>
-          <p class="text-muted text-sm">讓我們的對話更有效率</p>
+        <div class="mb-10">
+          <h2 class="text-3xl font-light mb-2" style="letter-spacing: 0.05em; color: var(--color-accent);">諮詢準備</h2>
+          <p class="text-xs" style="color: var(--color-muted);">讓我們的對話更有效率</p>
         </div>
-
         <div class="space-y-6">
-          <!-- Required Info -->
-          <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-            <h3 class="font-medium mb-4 flex items-center">
-              <span class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center mr-3">
-                <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-              </span>
-              需要準備的資料
-            </h3>
-            <div class="space-y-3 text-sm">
-              <div class="flex items-start">
-                <span class="w-1.5 h-1.5 rounded-full bg-accent mt-2 mr-3 flex-shrink-0"></span>
-                <div>
-                  <span class="font-medium text-text-main">國曆出生年月日</span>
-                  <span class="text-muted">（西元年份）</span>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <span class="w-1.5 h-1.5 rounded-full bg-accent mt-2 mr-3 flex-shrink-0"></span>
-                <div>
-                  <span class="font-medium text-text-main">出生時辰</span>
-                  <span class="text-muted">（盡可能精確，若不確定請告知大約範圍）</span>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <span class="w-1.5 h-1.5 rounded-full bg-accent mt-2 mr-3 flex-shrink-0"></span>
-                <div>
-                  <span class="font-medium text-text-main">出生地點</span>
-                  <span class="text-muted">（城市即可，用於時區校正）</span>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <span class="w-1.5 h-1.5 rounded-full bg-accent mt-2 mr-3 flex-shrink-0"></span>
-                <div>
-                  <span class="font-medium text-text-main">想諮詢的主題或問題</span>
-                  <span class="text-muted">（可以是具體問題，也可以是模糊的困惑）</span>
-                </div>
-              </div>
+          <div class="card p-8">
+            <h3 class="font-medium mb-6 text-lg">需要準備的資料</h3>
+            <div class="space-y-4 content-text" style="color: var(--color-muted);">
+              <p>• 國曆出生年月日（西元年份）</p>
+              <p>• 出生時辰（盡可能精確，若不確定請告知大約範圍）</p>
+              <p>• 出生地點（城市即可，用於時區校正）</p>
+              <p>• 想諮詢的主題或困題（可以是具體問題，也可以是模糊的困惑）</p>
+              <p class="text-xs pt-4 border-t" style="border-color: rgba(201, 169, 97, 0.1);">＊若查不到出生時辰，仍可進行諮詢，但部分分析會較為概略</p>
             </div>
-            <p class="text-xs text-muted/70 mt-4 pt-4 border-t border-warm-beige">
-              ＊若查不到出生時辰，仍可進行諮詢，但部分分析會較為概略
-            </p>
           </div>
+          <style>
+  /* 確保引入字型 */
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap');
 
-          <!-- Good States -->
-          <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-            <h3 class="font-medium mb-4 flex items-center text-green-400">
-              <span class="w-8 h-8 rounded-full bg-green-900/30 flex items-center justify-center mr-3">
-                <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"/>
-                </svg>
-              </span>
-              適合諮詢的狀態
-            </h3>
-            <ul class="space-y-2 text-sm text-muted">
-              <li class="flex items-start">
-                <span class="text-green-400 mr-2">✓</span>
-                對自己感到好奇，想要更了解自己
-              </li>
-              <li class="flex items-start">
-                <span class="text-green-400 mr-2">✓</span>
-                面臨選擇，想要多一個參考角度
-              </li>
-              <li class="flex items-start">
-                <span class="text-green-400 mr-2">✓</span>
-                情緒相對穩定，能夠接收與思考資訊
-              </li>
-              <li class="flex items-start">
-                <span class="text-green-400 mr-2">✓</span>
-                願意保持開放，但也會獨立思考
-              </li>
-              <li class="flex items-start">
-                <span class="text-green-400 mr-2">✓</span>
-                理解命理是參考工具，不是絕對真理
-              </li>
-            </ul>
-          </div>
+  /* 套用全域或特定內容區域的樣式 */
+  .custom-content-area {
+    font-family: 'Noto Serif TC', serif;
+    line-height: 1.8;
+  }
+</style>
 
-          <!-- Not Ideal States -->
-          <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-            <h3 class="font-medium mb-4 flex items-center text-amber-300">
-              <span class="w-8 h-8 rounded-full bg-amber-900/30 flex items-center justify-center mr-3">
-                <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-              </span>
-              建議暫緩的情況
-            </h3>
-            <ul class="space-y-2 text-sm text-muted">
-              <li class="flex items-start">
-                <span class="text-amber-300 mr-2">△</span>
-                正處於急性情緒危機或精神狀態不穩
-              </li>
-              <li class="flex items-start">
-                <span class="text-amber-300 mr-2">△</span>
-                期待命理師直接告訴你「該怎麼做」
-              </li>
-              <li class="flex items-start">
-                <span class="text-amber-300 mr-2">△</span>
-                想要聽到特定的答案，否則無法接受
-              </li>
-              <li class="flex items-start">
-                <span class="text-amber-300 mr-2">△</span>
-                希望透過命理控制或預測他人
-              </li>
-            </ul>
-            <p class="text-xs text-muted/70 mt-4 pt-4 border-t border-warm-beige">
-              ＊如果不確定自己的狀態是否適合，歡迎先聊聊，我們可以一起評估
-            </p>
-          </div>
+<div class="custom-content-area space-y-6">
+  <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
+    <h3 class="font-medium mb-4 flex items-center text-green-400 text-lg">
+      <span class="w-8 h-8 rounded-full bg-green-900/30 flex items-center justify-center mr-3">
+        <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"/>
+        </svg>
+      </span>
+      適合諮詢的狀態
+    </h3>
+    <ul class="space-y-3 text-base text-muted">
+      <li class="flex items-start">
+        <span class="text-green-400 mr-2">✓</span>
+        對自己感到好奇，想要更了解自己
+      </li>
+      <li class="flex items-start">
+        <span class="text-green-400 mr-2">✓</span>
+        面臨選擇，想要多一個參考角度
+      </li>
+      <li class="flex items-start">
+        <span class="text-green-400 mr-2">✓</span>
+        情緒相對穩定，能夠接收與思考資訊
+      </li>
+      <li class="flex items-start">
+        <span class="text-green-400 mr-2">✓</span>
+        願意保持開放，但也會獨立思考
+      </li>
+      <li class="flex items-start">
+        <span class="text-green-400 mr-2">✓</span>
+        理解命理是參考工具，不是絕對真理
+      </li>
+    </ul>
+  </div>
 
-          <!-- Boundaries -->
-          <div class="bg-warm-beige/30 rounded-2xl p-6 border border-warm-beige mb-6">
-            <h3 class="font-medium mb-4">專業界線說明</h3>
-            <p class="text-sm text-muted leading-relaxed mb-4">
-              命理諮詢不是心理治療、醫療診斷或法律建議的替代品。以下情況，我會建議您優先尋求相關專業協助：
-            </p>
-            <ul class="space-y-2 text-sm text-muted mb-4">
+  <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
+    <h3 class="font-medium mb-4 flex items-center text-amber-300 text-lg">
+      <span class="w-8 h-8 rounded-full bg-amber-900/30 flex items-center justify-center mr-3">
+        <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </span>
+      建議暫緩的情況
+    </h3>
+    <ul class="space-y-3 text-base text-muted">
+      <li class="flex items-start">
+        <span class="text-amber-300 mr-2">△</span>
+        正處於急性情緒危機或精神狀態不穩
+      </li>
+      <li class="flex items-start">
+        <span class="text-amber-300 mr-2">△</span>
+        期待命理師直接告訴你「該怎麼做」
+      </li>
+      <li class="flex items-start">
+        <span class="text-amber-300 mr-2">△</span>
+        想要聽到特定的答案，否則無法接受
+      </li>
+      <li class="flex items-start">
+        <span class="text-amber-300 mr-2">△</span>
+        希望透過命理控制或預測他人
+      </li>
+    </ul>
+    <p class="text-sm text-muted/70 mt-4 pt-4 border-t border-warm-beige">
+      ＊如果不確定自己的狀態是否適合，歡迎先聊聊，我們可以一起評估
+    </p>
+  </div>
+</div>
+          <div class="card p-8">
+            <h3 class="font-medium mb-4 text-lg">專業界線說明</h3>
+            <p class="content-text mb-4" style="color: var(--color-muted);">命理諮詢不是心理療法、醫療診斷或法律建議的替代品。以下情況，我會建議您優先尋求相關專業協助：</p>
+            <ul class="space-y-2 content-text mb-4" style="color: var(--color-muted);">
               <li>• 持續的情緒低落、焦慮或創傷反應 → 心理諮商</li>
               <li>• 身體健康問題 → 醫療專業</li>
               <li>• 法律糾紛或權益問題 → 法律諮詢</li>
               <li>• 財務規劃與投資決策 → 財務顧問</li>
             </ul>
-            <p class="text-sm text-muted leading-relaxed mb-4">
-              這不是推諉，而是尊重不同專業的邊界。命理可以作為自我理解的輔助工具，但不應該取代其他專業的功能。
-            </p>
-            <p class="text-sm text-muted leading-relaxed">
-              不提供偏財預測、生死預言、或傷害他人的術法服務。我們僅提供專業的人性與運勢解析。
-            </p>
+            <p class="content-text" style="color: var(--color-muted);">這不是推卸，而是尊重不同專業的邊界。命理可以作為自我理解的輔助工具，但不應該取代其他專業的功能。不提供偏財預測、生死言論、或傷害他人的術法服務。我們提供專業的人生與運勢解析。</p>
           </div>
-
-          <!-- Privacy & Disclaimer -->
-          <div class="bg-warm-beige rounded-2xl p-6 shadow-sm border border-warm-beige/50">
-            <h3 class="font-medium mb-4">隱私權與免責聲明</h3>
-            <div class="space-y-4 text-sm text-muted leading-relaxed">
+          <div class="card p-8">
+            <h3 class="font-medium mb-4 text-lg">隱私權與免責聲明</h3>
+            <div class="space-y-4 content-text" style="color: var(--color-muted);">
               <div>
-                <p class="font-medium text-text-main mb-1">個人資料保護</p>
+                <p class="font-medium" style="color: var(--color-text);">個人資料保護</p>
                 <p>本工作室僅於諮詢目的範圍內使用個人資料，不對外揭露、不轉交第三方，並妥善保存。</p>
               </div>
               <div>
-                <p class="font-medium text-text-main mb-1">內容聲明</p>
+                <p class="font-medium" style="color: var(--color-text);">內容聲明</p>
                 <p>本站內容屬命理諮詢與人生參考，不構成醫療、法律或投資建議。</p>
               </div>
             </div>
           </div>
         </div>
       </section>
+
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t border-warm-beige py-8 px-6 text-center">
-      <p class="text-sm text-text-main mb-2">富日閣 ｜ 八字命理工作室</p>
-      <p class="text-xs text-muted/60">理解自己，是一輩子的練習</p>
+    <footer class="border-t py-10 px-6 text-center">
+      <p class="text-xs mb-2" style="color: var(--color-accent);">富日閣 ｜ 八字命理工作室</p>
+      <p class="text-xs" style="color: var(--color-muted); letter-spacing: 0.05em;">理解自己，是一輩子的練習</p>
     </footer>
   </div>
 
   <script>
-    // Default configuration
+    // 嚴格對照原始檔案內容並同步完整簡介
     const defaultConfig = {
       studio_name: '富日閣',
       tagline: '命不是用來被預言，而是用來被理解；\n不是被動承受，而是主動選擇。',
-      contact_info: 'LINE 官方帳號',
-      background_color: '#1a1f2e',
-      surface_color: '#0f1419',
-      text_color: '#e8dcc8',
-      accent_color: '#c9a961',
-      muted_color: '#6b7280'
+      teacher_name: '洪耀麟',
+      teacher_bio: '於三十歲時，正式投入命理與風水領域的系統性學習，師承黃榮南先師，循正統體系研修正三元地理學，建立完整而穩固的理論基礎。其後，深入研究三元水局與二十八宿之吉凶運用，並學習地理風水中龍脈尋穴、立向定穴等核心方法，重視實地觀察與理法驗證，而非流於形式或傳說。\n\n在時間與命運的研究上，長期專注於擇日天文勀則與八字天命推演，透過大量實務案例反覆驗證命理模型的適用性。至今累積超過二十五年的研究與論命經驗，處理過各類人生關鍵課題，包含方向選擇、運勢轉換與重要時點判斷。\n\n研修歷程中，廣泛參考古代命理典籍與歷史實例，並將其轉化為符合現代生活節奏的判斷方式，致力於協助來訪者以更清晰、理性的角度理解自身條件與人生節奏，做出合適且可行的選擇。\n\n末蒙師門賜字號「慶昇」，承續慶字輩系譜。始終秉持正統傳承與專業自律，不以恐嚇、不過度渲染，強調命理作為「理解趨勢與風險的工具」，而非決定人生的唯一答案。'
     };
 
     let config = { ...defaultConfig };
 
-    // Tab switching
+    // Tab 切換邏輯
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
     tabButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         const targetTab = btn.dataset.tab;
-        
         tabButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
         tabContents.forEach(content => {
           content.classList.add('hidden');
           if (content.id === targetTab) {
@@ -650,120 +611,41 @@
       });
     });
 
-    // FAQ toggle
+    // FAQ 開展邏輯
     function toggleFaq(button) {
       const content = button.nextElementSibling;
       const icon = button.querySelector('svg');
-      
       content.classList.toggle('hidden');
       icon.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
     }
 
-    // Apply configuration to UI
+    // 處理配置變更
     async function onConfigChange(cfg) {
       config = { ...defaultConfig, ...cfg };
       
-      // Update text content
       document.getElementById('studio-name').textContent = config.studio_name || defaultConfig.studio_name;
-      
       const taglineEl = document.getElementById('tagline');
-      const taglineText = config.tagline || defaultConfig.tagline;
-      taglineEl.innerHTML = taglineText.replace(/\n/g, '<br>');
+      taglineEl.innerHTML = (config.tagline || defaultConfig.tagline).replace(/\n/g, '<br>');
 
-      // Update colors
-      const bgColor = config.background_color || defaultConfig.background_color;
-      const surfaceColor = config.surface_color || defaultConfig.surface_color;
-      const textColor = config.text_color || defaultConfig.text_color;
-      const accentColor = config.accent_color || defaultConfig.accent_color;
-      const mutedColor = config.muted_color || defaultConfig.muted_color;
-
-      document.documentElement.style.setProperty('--color-cream', bgColor);
-      document.documentElement.style.setProperty('--color-warm-beige', surfaceColor);
-      document.documentElement.style.setProperty('--color-text', textColor);
-      document.documentElement.style.setProperty('--color-accent', accentColor);
-      document.documentElement.style.setProperty('--color-muted', mutedColor);
-
-      document.body.style.backgroundColor = bgColor;
-      document.body.style.color = textColor;
-      
-      document.getElementById('studio-name').style.color = accentColor;
-
-      // Update all warm-beige cards
-      document.querySelectorAll('.bg-warm-beige').forEach(el => {
-        el.style.backgroundColor = surfaceColor;
-      });
-
-      // Update accent elements
-      document.querySelectorAll('.text-accent').forEach(el => {
-        el.style.color = accentColor;
-      });
-
-      document.querySelectorAll('.bg-accent\\/10').forEach(el => {
-        el.style.backgroundColor = accentColor + '1a';
-      });
-
-      // Update muted text
-      document.querySelectorAll('.text-muted').forEach(el => {
-        el.style.color = mutedColor;
-      });
+      document.getElementById('teacher-name').textContent = config.teacher_name || defaultConfig.teacher_name;
+      const bioEl = document.getElementById('teacher-bio');
+      bioEl.innerHTML = (config.teacher_bio || defaultConfig.teacher_bio).replace(/\n/g, '<br>');
     }
 
-    // Map to capabilities for color editing
+    // SDK 初始化
     function mapToCapabilities(cfg) {
-      return {
-        recolorables: [
-          {
-            get: () => cfg.background_color || defaultConfig.background_color,
-            set: (value) => {
-              cfg.background_color = value;
-              window.elementSdk.setConfig({ background_color: value });
-            }
-          },
-          {
-            get: () => cfg.surface_color || defaultConfig.surface_color,
-            set: (value) => {
-              cfg.surface_color = value;
-              window.elementSdk.setConfig({ surface_color: value });
-            }
-          },
-          {
-            get: () => cfg.text_color || defaultConfig.text_color,
-            set: (value) => {
-              cfg.text_color = value;
-              window.elementSdk.setConfig({ text_color: value });
-            }
-          },
-          {
-            get: () => cfg.accent_color || defaultConfig.accent_color,
-            set: (value) => {
-              cfg.accent_color = value;
-              window.elementSdk.setConfig({ accent_color: value });
-            }
-          },
-          {
-            get: () => cfg.muted_color || defaultConfig.muted_color,
-            set: (value) => {
-              cfg.muted_color = value;
-              window.elementSdk.setConfig({ muted_color: value });
-            }
-          }
-        ],
-        borderables: [],
-        fontEditable: undefined,
-        fontSizeable: undefined
-      };
+      return { recolorables: [], borderables: [], fontEditable: undefined, fontSizeable: undefined };
     }
 
-    // Map to edit panel values
     function mapToEditPanelValues(cfg) {
       return new Map([
         ['studio_name', cfg.studio_name || defaultConfig.studio_name],
         ['tagline', cfg.tagline || defaultConfig.tagline],
-        ['contact_info', cfg.contact_info || defaultConfig.contact_info]
+        ['teacher_name', cfg.teacher_name || defaultConfig.teacher_name],
+        ['teacher_bio', cfg.teacher_bio || defaultConfig.teacher_bio]
       ]);
     }
 
-    // Initialize SDK
     if (window.elementSdk) {
       window.elementSdk.init({
         defaultConfig,
@@ -774,30 +656,6 @@
     } else {
       onConfigChange(defaultConfig);
     }
-
-    // Tab button styling
-    const style = document.createElement('style');
-    style.textContent = `
-      .tab-btn {
-        color: var(--color-muted);
-        border-bottom: 2px solid transparent;
-      }
-      .tab-btn:hover {
-        color: var(--color-text);
-      }
-      .tab-btn.active {
-        color: var(--color-accent);
-        border-bottom-color: var(--color-accent);
-      }
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-      .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-    `;
-    document.head.appendChild(style);
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cf69007e4c84a66',t:'MTc3MTM0NDcwOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
