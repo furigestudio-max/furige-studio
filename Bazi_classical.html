@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>子平八字精準運算系統</title>
+    <link rel="icon" href="icon_bazi.png" type="image/png">
+    <link rel="apple-touch-icon" href="icon_bazi.png">
+    <!-- 引入 Klee One 質感字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入專業曆法函式庫 -->
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
+    <!-- 引入 html2canvas 與 jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-red: #8B0000;
+            --wood: #4A773C;
+            --fire: #A63D40;
+            --earth: #8C7355;
+            --metal: #888888;
+            --water: #2D5A7E;
+        }
+
+        body {
+            background-color: #f5f5f7;
+            color: #1a1a1a;
+            font-family: 'Klee One', 'PingFang TC', 'Microsoft JhengHei', serif;
+            line-height: 1.6;
+        }
+
+        .bazi-border { border: 2px solid var(--primary-red); }
+        .bc { border-color: var(--primary-red) !important; }
+
+        .section-title {
+            background-color: var(--primary-red);
+            color: white;
+            padding: 6px 18px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            border-radius: 2px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            font-size: 1.1rem;
+        }
+
+        /* 五行顏色 */
+        .text-wood { color: var(--wood); }
+        .text-fire { color: var(--fire); }
+        .text-earth { color: var(--earth); }
+        .text-metal { color: var(--metal); }
+        .text-water { color: var(--water); }
+
+        /* 確保元素在 PDF 截圖時不換行 */
+        .nowrap-center {
+            white-space: nowrap;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* 分析卡片排版 */
+        .analysis-card {
+            background: white;
+            border: 1px solid var(--primary-red);
+            padding: 1.25rem;
+            box-shadow: 2px 2px 8px rgba(139, 0, 0, 0.08);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .analysis-card h4 {
+            color: var(--primary-red);
+            font-weight: bold;
+            border-bottom: 2px solid var(--primary-red);
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+            letter-spacing: 0.05em;
+        }
+
+        .analysis-card p, .analysis-card ul {
+            font-size: 0.92rem;
+            color: #333;
+            line-height: 1.7;
+            margin: 0;
+            text-align: justify;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; }
+        }
+
+        input, select {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 6px;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+        }
+
+        button.primary-btn {
+            background-color: var(--primary-red);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button.primary-btn:hover { background-color: #6b0000; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- 輸入區塊 -->
+        <header class="mb-10 no-print">
+            <h1 class="text-4xl font-bold mb-8 text-center" style="color: var(--primary-red); letter-spacing: 0.1em;">子平八字精準運算與深度分析系統</h1>
+            <div class="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div><label class="block mb-2 text-sm font-bold text-gray-700">姓名</label><input type="text" id="userName" value=""></div>
+                    <div>
+                        <label class="block mb-2 text-sm font-bold text-gray-700">性別</label>
+                        <select id="gender"><option value="female">女</option><option value="male">男</option></select>
+                    </div>
+                    <div><label class="block mb-2 text-sm font-bold text-gray-700">出生日期 (西元)</label><input type="date" id="birthDate" value=""></div>
+                    <div><label class="block mb-2 text-sm font-bold text-gray-700">出生時間</label><input type="time" id="birthTime" value=""></div>
+                    <div class="md:col-span-2 lg:col-span-4">
+                        <label class="block mb-2 text-sm font-bold text-gray-700">出生城市（真太陽時經度校準）</label>
+                        <div class="flex gap-3">
+                            <select id="citySelect" class="w-1/3" onchange="updateLongitude()">
+                                <optgroup label="台灣主要城市">
+                                    <option value="121.50">台北 (121.50°E)</option>
+                                    <option value="121.46">新北 (121.46°E)</option>
+                                    <option value="121.31">桃園 (121.31°E)</option>
+                                    <option value="120.96">新竹 (120.96°E)</option>
+                                    <option value="120.67">台中 (120.67°E)</option>
+                                    <option value="120.54">彰化 (120.54°E)</option>
+                                    <option value="120.68">南投 (120.68°E)</option>
+                                    <option value="120.53">雲林 (120.53°E)</option>
+                                    <option value="120.44">嘉義 (120.44°E)</option>
+                                    <option value="120.20">台南 (120.20°E)</option>
+                                    <option value="120.30">高雄 (120.30°E)</option>
+                                    <option value="120.48">屏東 (120.48°E)</option>
+                                    <option value="121.75">宜蘭 (121.75°E)</option>
+                                    <option value="121.60">花蓮 (121.60°E)</option>
+                                    <option value="121.15">台東 (121.15°E)</option>
+                                    <option value="119.56">澎湖 (119.56°E)</option>
+                                    <option value="118.32">金門 (118.32°E)</option>
+                                </optgroup>
+                                <optgroup label="亞洲城市">
+                                    <option value="114.17">香港 (114.17°E)</option>
+                                    <option value="113.54">澳門 (113.54°E)</option>
+                                    <option value="121.47">上海 (121.47°E)</option>
+                                    <option value="116.40">北京 (116.40°E)</option>
+                                    <option value="113.26">廣州 (113.26°E)</option>
+                                    <option value="139.69">東京 (139.69°E)</option>
+                                    <option value="126.97">首爾 (126.97°E)</option>
+                                    <option value="103.81">新加坡 (103.81°E)</option>
+                                    <option value="100.50">曼谷 (100.50°E)</option>
+                                </optgroup>
+                                <optgroup label="歐美城市">
+                                    <option value="-118.24">洛杉磯 (118.24°W)</option>
+                                    <option value="-122.41">舊金山 (122.41°W)</option>
+                                    <option value="-74.00">紐約 (74.00°W)</option>
+                                    <option value="-79.38">多倫多 (79.38°W)</option>
+                                    <option value="-0.12">倫敦 (0.12°W)</option>
+                                    <option value="2.35">巴黎 (2.35°E)</option>
+                                    <option value="151.20">雪梨 (151.20°E)</option>
+                                </optgroup>
+                                <option value="custom">自定義經度</option>
+                            </select>
+                            <input type="number" id="longitude" step="0.01" value="121.50" class="w-2/3" placeholder="請輸入精確經度數值">
+                        </div>
+                    </div>
+                </div>
+                <button onclick="calculateBazi()" class="primary-btn w-full mt-8 text-xl font-bold tracking-widest">開始精密排盤與深度分析</button>
+            </div>
+        </header>
+
+        <!-- 結果展示區 -->
+        <div id="resultsArea" class="hidden relative">
+            
+            <!-- 下載 PDF 按鈕 -->
+            <div class="flex justify-end mb-6 no-print" id="downloadBtnContainer">
+                <button onclick="downloadPDF()" class="bg-gray-800 hover:bg-black text-white px-8 py-4 rounded-lg shadow-xl transition-all flex items-center gap-3 font-bold text-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    匯出專業版雙頁橫式 PDF
+                </button>
+            </div>
+
+            <!-- PDF 擷取容器 -->
+            <div id="pdfCaptureArea" class="mx-auto w-[1200px] max-w-[1200px]">
+                
+                <!-- ==================== PDF Page 1: 命盤主圖 ==================== -->
+                <div id="pdfPage1" class="bg-white p-8 shadow-sm border border-gray-100 mb-10">
+                    <div class="text-center mb-8 border-b-2 bc pb-6 relative">
+                        <h2 class="text-4xl font-bold text-[var(--primary-red)] tracking-widest" id="reportTitle">八字命理深度分析報告</h2>
+                        <p class="text-gray-500 mt-3 font-bold tracking-wider" id="processSummary"></p>
+                    </div>
+
+                    <div class="flex flex-row gap-6 items-start w-full justify-center">
+                        <section id="printMainBoard">
+                            <div class="border-2 bc flex flex-row bg-white text-gray-900 shadow-sm text-sm h-[528px] w-[1200px] box-border mx-auto">
+                                <div class="w-[1002px] shrink-0 flex flex-col border-r-2 bc">
+                                    <div class="flex flex-row h-[382px] border-b bc w-[1000px]">
+                                        <div class="w-[41px] shrink-0 border-r bc flex flex-col items-center justify-center text-xs font-bold text-gray-700 bg-gray-50/50" id="col-birth-after"></div>
+                                        <div class="w-[41px] shrink-0 border-r bc flex flex-col items-center justify-center text-xs font-bold text-gray-700 bg-gray-50/50">
+                                            <div class="flex flex-col items-center leading-tight">
+                                                <span>依</span><span>據</span><span>節</span><span>氣</span><div class="h-2"></div>
+                                                <span>精</span><span>算</span><span>推</span><span>導</span><div class="h-2"></div>
+                                                <span>交</span><span>大</span><span>運</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-[872px] shrink-0 flex flex-row" id="four-pillars-container"></div>
+                                        <div class="w-[46px] shrink-0 border-l bc flex flex-col font-bold text-gray-800 bg-gray-50/50">
+                                            <div class="h-[32px] border-b bc shrink-0"></div>
+                                            <div class="h-[40px] border-b bc flex justify-center items-center text-xs tracking-widest shrink-0">主星</div>
+                                            <div class="h-[160px] border-b bc flex justify-center items-center text-base tracking-widest shrink-0">
+                                                <div class="flex flex-col items-center"><span>八</span><span>字</span></div>
+                                            </div>
+                                            <div class="h-[100px] border-b bc flex justify-center items-center text-xs tracking-widest shrink-0">
+                                                <div class="flex flex-col items-center"><span>藏</span><span>副</span><span>星</span></div>
+                                            </div>
+                                            <div class="h-[50px] flex justify-center items-center text-xs tracking-widest shrink-0">
+                                                <div class="flex flex-col items-center"><span>十</span><span>二</span><span>運</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-row h-[76px] border-b bc w-[1000px] bg-white">
+                                        <div class="w-[954px] shrink-0 flex flex-row" id="dayun-grid"></div>
+                                        <div class="w-[46px] shrink-0 border-l bc flex flex-col font-bold text-gray-800 bg-gray-50/50">
+                                            <div class="h-[24px] border-b bc flex justify-center items-center text-[10px] tracking-widest shrink-0">歲運</div>
+                                            <div class="flex-1 flex justify-center items-center text-[11px] tracking-widest shrink-0">
+                                                <div class="flex flex-col items-center"><span>大</span><span>運</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-row h-[70px] w-[1000px] bg-gray-50/30 text-[13px]">
+                                        <div class="w-[1000px] shrink-0 flex flex-row" id="extra-info-grid"></div>
+                                    </div>
+                                </div>
+                                <div class="w-[194px] shrink-0 flex flex-col text-center font-bold bg-white">
+                                    <div class="flex flex-row border-b bc h-[48px]">
+                                        <div class="w-[97px] shrink-0 flex justify-center items-center border-r bc text-[var(--primary-red)] text-lg tracking-widest" id="right-zodiac"></div>
+                                        <div class="w-[97px] shrink-0 flex justify-center items-center text-[var(--water)] text-lg tracking-widest" id="right-gender"></div>
+                                    </div>
+                                    <div class="h-[48px] shrink-0 border-b bc flex justify-center items-center text-[var(--water)] tracking-widest text-lg" id="right-solar-year"></div>
+                                    <div class="flex flex-row border-b bc h-[120px]">
+                                        <div class="w-[64px] shrink-0 border-r bc flex flex-col">
+                                            <div class="h-[32px] shrink-0 border-b bc flex justify-center items-center text-[11px] font-normal text-gray-600 tracking-widest">民國</div>
+                                            <div class="flex-1 flex justify-center items-center text-[var(--water)] text-xl" id="right-roc"></div>
+                                        </div>
+                                        <div class="w-[65px] shrink-0 border-r bc flex flex-col">
+                                            <div class="h-[32px] shrink-0 border-b bc flex justify-center items-center text-[11px] font-normal text-gray-600 tracking-widest">農曆</div>
+                                            <div class="flex-1 flex justify-center items-center text-[var(--primary-red)] text-xl" id="right-lunar"></div>
+                                        </div>
+                                        <div class="w-[65px] shrink-0 flex flex-col bg-red-50/40">
+                                            <div class="h-[32px] shrink-0 border-b bc flex justify-center items-center text-[11px] font-normal text-gray-700 tracking-widest">姓名</div>
+                                            <div class="flex-1 flex justify-center items-center text-2xl tracking-widest" id="right-name"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-row h-[312px]">
+                                        <div class="w-[97px] shrink-0 border-r bc flex justify-center items-center text-[var(--water)] text-base" id="right-solar-date"></div>
+                                        <div class="w-[97px] shrink-0 flex justify-center items-center text-[var(--primary-red)] text-base" id="right-lunar-date"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- ==================== PDF Page 2: 專業分析模組 ==================== -->
+                <div id="pdfPage2" class="bg-white p-8 shadow-sm border border-gray-100">
+                    <div class="text-center mb-8 border-b-2 bc pb-6 relative" id="reportHeader2">
+                        <h2 class="text-4xl font-bold text-[var(--primary-red)] tracking-widest">命盤深度分析報告</h2>
+                        <p class="text-gray-500 mt-3 font-bold tracking-wider" id="page2Name"></p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-6" id="analysisContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 網頁底部聲明區塊 -->
+        <footer class="mt-16 mb-8 text-center text-gray-500 text-sm space-y-2 no-print border-t border-gray-200 pt-8">
+            <p>&copy; 2026 富日閣 版權所有。</p>
+            <p>資料使用說明：本網站資料僅做八字命理研究使用，不做其他用途。</p>
+            <p class="text-[var(--primary-red)] font-semibold tracking-wide">提醒：本網站資料皆無存檔，請將命理計算結果自行下載保存。</p>
+        </footer>
+    </div>
+
+    <script>
+        const Gan = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+        const Zhi = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+        const Zodiac = ["鼠", "牛", "虎", "兔", "龍", "蛇", "馬", "羊", "猴", "雞", "狗", "豬"];
+        
+        const FiveElements = {
+            "甲":"wood", "乙":"wood", "寅":"wood", "卯":"wood",
+            "丙":"fire", "丁":"fire", "巳":"fire", "午":"fire",
+            "戊":"earth", "己":"earth", "辰":"earth", "戌":"earth", "丑":"earth", "未":"earth",
+            "庚":"metal", "辛":"metal", "申":"metal", "酉":"metal",
+            "壬":"water", "癸":"water", "亥":"water", "子":"water"
+        };
+
+        const hiddenStems = {
+            "子":["癸"], "丑":["己","癸","辛"], "寅":["甲","丙","戊"], "卯":["乙"],
+            "辰":["戊","乙","癸"], "巳":["丙","戊","庚"], "午":["丁","己"], "未":["己","丁","乙"],
+            "申":["庚","壬","戊"], "酉":["辛"], "戌":["戊","辛","丁"], "亥":["壬","甲"]
+        };
+
+        const qiStates = ["長生", "沐浴", "冠帶", "臨官", "帝旺", "衰", "病", "死", "墓", "絕", "胎", "養"];
+        const qiStarts = {"甲":11, "丙":2, "戊":2, "庚":5, "壬":8, "乙":6, "丁":9, "己":9, "辛":0, "癸":3}; 
+
+        function toFullWidth(str) {
+            return str.replace(/[0-9]/g, s => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
+        }
+
+        function formatVert(str) {
+            if (!str) return '';
+            return str.split('').map(c => `<span>${c}</span>`).join('');
+        }
+
+        function getTenGod(dayStem, targetStem) {
+            if (!targetStem) return "";
+            const dIdx = Gan.indexOf(dayStem); const tIdx = Gan.indexOf(targetStem);
+            const dEl = Math.floor(dIdx / 2); const tEl = Math.floor(tIdx / 2);
+            const samePol = (dIdx % 2) === (tIdx % 2); const diff = (tEl - dEl + 5) % 5;
+            if (diff === 0) return samePol ? "比肩" : "劫財";
+            if (diff === 1) return samePol ? "食神" : "傷官";
+            if (diff === 2) return samePol ? "偏財" : "正財";
+            if (diff === 3) return samePol ? "七殺" : "正官";
+            if (diff === 4) return samePol ? "偏印" : "正印";
+        }
+
+        function getColor(char) { return FiveElements[char] ? `text-${FiveElements[char]}` : 'text-gray-800'; }
+        
+        function getElementText(char) { 
+            const m = {wood:"木", fire:"火", earth:"土", metal:"金", water:"水"}; 
+            return m[char] || m[FiveElements[char]] || ''; 
+        }
+
+        function getEoT(dayOfYear) { const B = (360/365)*(dayOfYear-81)*(Math.PI/180); return 9.87*Math.sin(2*B) - 7.53*Math.cos(B) - 1.5*Math.sin(B); }
+        
+        function getQiState(dayStem, branch) {
+            const startZhiIdx = qiStarts[dayStem]; const branchIdx = Zhi.indexOf(branch);
+            const isYang = ["甲","丙","戊","庚","壬"].includes(dayStem);
+            let steps = isYang ? (branchIdx - startZhiIdx + 12) % 12 : (startZhiIdx - branchIdx + 12) % 12;
+            return qiStates[steps];
+        }
+
+        function updateLongitude() { const s = document.getElementById('citySelect').value; if(s !== 'custom') document.getElementById('longitude').value = s; }
+
+        function calculateBazi() {
+            if (typeof Solar === 'undefined') { alert("曆法庫載入中..."); return; }
+            const name = document.getElementById('userName').value || "訪客";
+            const gender = document.getElementById('gender').value;
+            const dateStr = document.getElementById('birthDate').value;
+            const timeStr = document.getElementById('birthTime').value;
+            if(!dateStr || !timeStr) { alert("請完整輸入出生日期與時間。"); return; }
+            const lon = parseFloat(document.getElementById('longitude').value);
+            const birth = new Date(`${dateStr}T${timeStr}`);
+            const year = birth.getFullYear();
+            const lonDiffMin = (lon - 120.0) * 4;
+            const dayOfYear = Math.floor((birth - new Date(year, 0, 0)) / 86400000);
+            const tstDate = new Date(birth.getTime() + (lonDiffMin + getEoT(dayOfYear)) * 60000);
+            const solar = Solar.fromYmdHms(tstDate.getFullYear(), tstDate.getMonth()+1, tstDate.getDate(), tstDate.getHours(), tstDate.getMinutes(), tstDate.getSeconds());
+            const lunar = solar.getLunar();
+            const bazi = lunar.getEightChar();
+            const p = { yG: bazi.getYearGan(), yZ: bazi.getYearZhi(), mG: bazi.getMonthGan(), mZ: bazi.getMonthZhi(), dG: bazi.getDayGan(), dZ: bazi.getDayZhi(), hG: bazi.getTimeGan(), hZ: bazi.getTimeZhi() };
+            const yun = bazi.getYun(gender === 'male' ? 1 : 0);
+            const daYuns = yun.getDaYun();
+            const sequence = [];
+            for(let i=1; i<=9; i++) {
+                if (i < daYuns.length) sequence.push({ gz: daYuns[i].getGanZhi(), age: daYuns[i].getStartAge(), year: daYuns[i].getStartYear() });
+                else { const last = sequence[sequence.length-1]; sequence.push({ gz: '--', age: last.age + 10, year: last.year + 10 }); }
+            }
+            const currentYear = new Date().getFullYear();
+            let currentDaYun = sequence[0]?.gz || "--";
+            sequence.forEach(s => { if(currentYear >= s.year && currentYear < s.year+10) currentDaYun = s.gz; });
+            const currentLunarYear = Solar.fromDate(new Date()).getLunar().getYearInGanZhi();
+            
+            const getShenShaList = (dayG, branches) => {
+                const ss = [];
+                const tianyi = { "甲": ["丑", "未"], "戊": ["丑", "未"], "庚": ["丑", "未"], "乙": ["子", "申"], "己": ["子", "申"], "丙": ["亥", "酉"], "丁": ["亥", "酉"], "壬": ["卯", "巳"], "癸": ["卯", "巳"], "辛": ["寅", "午"] };
+                const wenyang = { "甲": "巳", "乙": "午", "丙": "申", "丁": "酉", "戊": "申", "己": "酉", "庚": "亥", "辛": "子", "壬": "寅", "癸": "卯" };
+                const yangren = { "甲": "卯", "丙": "午", "戊": "午", "庚": "酉", "壬": "子" };
+                if (tianyi[dayG] && branches.some(b => tianyi[dayG].includes(b))) ss.push("天乙貴人");
+                if (wenyang[dayG] && branches.includes(wenyang[dayG])) ss.push("文昌貴人");
+                if (yangren[dayG] && branches.includes(yangren[dayG])) ss.push("羊刃");
+                return ss;
+            };
+
+            displayResults({ name, gender, birth, tstDate, year, p, yun, sequence, currentDaYun, currentLunarYear, lon, taiYuan: bazi.getTaiYuan() || "--", mingGong: bazi.getMingGong() || "--", dayKong: bazi.getDayXunKong() || "--", yearKong: bazi.getYearXunKong() || "--", shenSha: getShenShaList(p.dG, [p.yZ, p.mZ, p.dZ, p.hZ]), lunarStr: `${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}日` });
+        }
+
+        function displayResults(d) {
+            document.getElementById('resultsArea').classList.remove('hidden');
+            document.getElementById('reportTitle').innerText = `${d.name} 之 八字命理深度分析報告`;
+            document.getElementById('processSummary').innerText = `真太陽時校準：經度 ${d.lon}°E | 修正完成`;
+            document.getElementById('page2Name').innerText = `命造：${d.name} | 排盤基準：真太陽時`;
+            
+            const yearDigits = toFullWidth((d.year - 1911).toString());
+            const verticalYearHtml = `<div class="flex flex-col items-center justify-center leading-[1.0] mt-[-2px] font-bold text-xl">${yearDigits.split('').map(v => `<span class="block">${v}</span>`).join('')}<span class="block mt-[1px]">年</span></div>`;
+            
+            document.getElementById('right-name').innerHTML = `<div class="flex flex-col items-center justify-center font-bold text-[22px] leading-tight">${formatVert(d.name)}</div>`;
+            document.getElementById('right-zodiac').innerText = `肖${Zodiac[Zhi.indexOf(d.p.yZ)]}`;
+            document.getElementById('right-gender').innerText = (["甲","丙","戊","庚","壬"].includes(d.p.yG)?'陽':'陰') + (d.gender==='male'?'男':'女');
+            document.getElementById('right-solar-year').innerText = `公元 ${d.year} 年`;
+            document.getElementById('right-roc').innerHTML = verticalYearHtml;
+            document.getElementById('right-lunar').innerHTML = verticalYearHtml;
+            
+            const sDate = toFullWidth(`${d.tstDate.getMonth()+1}月${d.tstDate.getDate()}日`);
+            const sTime = toFullWidth(`${d.tstDate.getHours()}時${d.tstDate.getMinutes().toString().padStart(2,'0')}分`);
+            document.getElementById('right-solar-date').innerHTML = `<div class="flex flex-col items-center justify-center leading-tight"><div class="flex flex-col items-center mb-4">${formatVert(sDate)}</div><div class="flex flex-col items-center">${formatVert(sTime)}</div></div>`;
+            const lDate = toFullWidth(d.lunarStr);
+            document.getElementById('right-lunar-date').innerHTML = `<div class="flex flex-col items-center justify-center leading-tight"><div class="flex flex-col items-center mb-4">${formatVert(lDate)}</div><div class="flex flex-col items-center">${d.p.hZ}時</div></div>`;
+            
+            const pillarsData = [ { id: 'hour', label: '時柱', stem: d.p.hG, branch: d.p.hZ }, { id: 'day', label: '日柱', stem: d.p.dG, branch: d.p.dZ }, { id: 'month', label: '月柱', stem: d.p.mG, branch: d.p.mZ }, { id: 'year', label: '年柱', stem: d.p.yG, branch: d.p.yZ } ];
+            let pillarsHtml = '';
+            pillarsData.forEach((p, index) => {
+                const tenGod = (p.id === 'day') ? '<span class="text-black text-base">命主</span>' : getTenGod(d.p.dG, p.stem);
+                const hsArray = hiddenStems[p.branch];
+                let hsHtml = '', hgHtml = '';
+                hsArray.forEach(s => {
+                    hsHtml += `<div class="flex-1 flex justify-center items-center font-bold text-gray-700 text-sm">${s}</div>`;
+                    hgHtml += `<div class="flex-1 flex justify-center items-start pt-2 font-bold text-[var(--primary-red)] text-xs"><div class="flex flex-col items-center leading-tight">${formatVert(getTenGod(d.p.dG, s))}</div></div>`;
+                });
+                pillarsHtml += `<div class="w-[218px] shrink-0 flex flex-col ${index === 3 ? '' : 'border-r bc'}"><div class="h-[32px] shrink-0 flex justify-center items-center border-b bc font-bold text-gray-700 bg-gray-50/50 tracking-widest text-sm">${p.label}</div><div class="h-[40px] shrink-0 flex justify-center items-center border-b bc font-bold text-[var(--primary-red)] text-[15px] tracking-widest">${tenGod}</div><div class="h-[80px] shrink-0 flex justify-center items-center border-b bc text-5xl font-bold ${getColor(p.stem)} relative">${p.stem}<span class="absolute right-2 bottom-2 text-[11px] font-normal text-gray-400">${getElementText(p.stem)}</span></div><div class="h-[80px] shrink-0 flex justify-center items-center border-b bc text-5xl font-bold ${getColor(p.branch)} relative">${p.branch}<span class="absolute right-2 bottom-2 text-[11px] font-normal text-gray-400">${getElementText(p.branch)}</span></div><div class="h-[100px] shrink-0 border-b bc flex flex-col"><div class="flex flex-row h-[40px] shrink-0 border-b bc">${hsHtml}</div><div class="flex flex-row h-[60px] shrink-0">${hgHtml}</div></div><div class="h-[50px] shrink-0 flex justify-center items-center text-[13px] font-bold text-[var(--water)] tracking-wider bg-orange-50/20">${getQiState(d.p.dG, p.branch)}</div></div>`;
+            });
+            document.getElementById('four-pillars-container').innerHTML = pillarsHtml;
+            
+            const bYears = toFullWidth(d.yun.getStartYear().toString()).split('').map(v=>`<span>${v}</span>`).join('');
+            const bMonths = toFullWidth(d.yun.getStartMonth().toString()).split('').map(v=>`<span>${v}</span>`).join('');
+            document.getElementById('col-birth-after').innerHTML = `<div class="flex flex-col items-center justify-center leading-tight"><span>出</span><span>生</span><span>後</span><div class="h-1"></div><div class="flex flex-col items-center">${bYears}</div><span>年</span><div class="h-1"></div><div class="flex flex-col items-center">${bMonths}</div><span>個</span><span>月</span><div class="h-1"></div><span>交</span><span>運</span></div>`;
+            
+            const dyGrid = document.getElementById('dayun-grid'); dyGrid.innerHTML = "";
+            d.sequence.slice().reverse().forEach((item, index) => {
+                const isCurr = (new Date().getFullYear() >= item.year && new Date().getFullYear() < item.year+10);
+                dyGrid.innerHTML += `<div class="w-[106px] shrink-0 flex flex-col relative ${index === 8 ? '' : 'border-r bc'} ${isCurr?'bg-red-50/80 ring-2 ring-red-800 inset-0 z-10':''}"> <div class="h-[24px] shrink-0 border-b bc flex justify-center items-center text-[11px] font-bold text-gray-700 tracking-wider">${item.age}</div><div class="flex-1 flex flex-col justify-center items-center gap-1 py-1"><div class="font-bold text-[18px] leading-none ${getColor(item.gz[0])}">${item.gz[0]}</div><div class="font-bold text-[18px] leading-none ${getColor(item.gz[1])}">${item.gz[1]}</div></div></div>`;
+            });
+            
+            const extras = [ {l:"年 空",v:d.yearKong}, {l:"日 空",v:d.dayKong}, {l:"胎 元",v:d.taiYuan}, {l:"命 宮",v:d.mingGong} ];
+            document.getElementById('extra-info-grid').innerHTML = extras.map((e, index) => `<div class="w-[250px] shrink-0 flex flex-col items-center justify-center ${index === 3 ? '' : 'border-r bc'}"><div class="w-full h-1/2 border-b bc flex justify-center items-center text-[13px] tracking-widest text-gray-700 font-bold">${e.l}</div><div class="w-full h-1/2 flex justify-center items-center font-bold tracking-[0.2em] text-[15px] ${getColor(e.v[0])}">${e.v}</div></div>`).join('');
+            
+            generateComprehensiveAnalysis(d);
+        }
+
+        // --- 優雅古典命理動態分析模組 ---
+        function generateComprehensiveAnalysis(d) {
+            const dayMasterFullDict = {
+                "甲": { personality: "賦性仁慈，氣稟東方木德，具參天之勢，為人正直且規劃力極強，乃輔世之良材。", style: "行事循序而進，對理想抱持極高之操守與堅持，誠信可靠，骨格清奇。" },
+                "乙": { personality: "賦性柔韌，氣秉震宮之秀，如藤蔓之適應百境，心思慎微而具備極佳之協調能力。", style: "行事圓融，擅於以柔克剛，對美學藝術具深邃之造詣，處事而不失其本色。" },
+                "丙": { personality: "賦性赤誠，氣稟離火之精，如烈日當空，光明磊落而具備強大之感化力。", style: "行事決斷迅捷，熱情洋溢而充滿鬥志，擅於引領風氣，唯需注意火氣之收斂。" },
+                "丁": { personality: "賦性靈秀，氣秉文明之火，如星光熠熠，內斂深沈而思辨力極佳，富於奉獻之美德。", style: "行事慎獨，推敲細節而極具邏輯，專精於藝業，乃明理而利他之典型。" },
+                "戊": { personality: "賦性沈厚，氣稟坤土之重，如高山厚土，信實守諾，乃萬物之所依託。", style: "行事穩健而不求速成，重視長遠之根基與信譽，立身處事，四平八穩。" },
+                "己": { personality: "賦性謙和，氣秉田園之土，質地細緻而多才多藝，具備極強之守成與教養之德。", style: "心思綿密，擅於細節經營與資源分配，行事靈活有節度，乃周全之才。" },
+                "庚": { personality: "賦性剛健，氣稟乾金之氣，如秋霜嚴肅，重義輕利，具備披荊斬棘之開創精神。", style: "行事剛毅果決，不避艱難，具備統御之威信與判斷是非之正氣。" },
+                "辛": { personality: "賦性精萃，氣秉兌金之靈，如珠玉熠熠，追求極致之完美，氣質高華而不俗。", style: "行事明敏，洞察力極佳，重視內外之和諧與細節之精準，富於藝術感知。" },
+                "壬": { personality: "賦性浩瀚，氣稟坎水之源，如江河奔湧，智慧深廣而不拘小節，具備宏觀之格局。", style: "行事具備通變之機，應變力極強，擅於匯聚資源，生命歷程充滿壯闊之變動。" },
+                "癸": { personality: "賦性靈動，氣秉雨露之潤，洞察玄機，具備極強之隱忍力與潤物無聲之智慧。", style: "處事圓融而深思熟慮，擅於在靜默中運籌帷幄，洞察微毫，化解衝突於無形。" }
+            };
+
+            const patternFullDict = {
+                "正印": { effect: "提綱取正印，主文星入命，名清德重，精神涵養豐厚，深得眾望。", advice: "宜在學術或教化領域精進，清貴之氣必然顯達。" },
+                "偏印": { effect: "提綱取偏印，主直覺深邃，具備異路功名之奇才，感官敏銳異常。", advice: "宜發展特殊藝業或尖端之技，必能獨步青雲。" },
+                "正官": { effect: "提綱取正官，主官星顯耀，清高自守，重視法度與社會綱常之尊嚴。", advice: "宜在體制內施展政治抱負，前程光輝，受人尊崇。" },
+                "七殺": { effect: "提綱取七殺，主權柄在握，鬥志昂揚，具備革故鼎新之壯志，威儀凜然。", advice: "宜向競爭劇烈之場開拓，威震八方，功名自成。" },
+                "正財": { effect: "提綱取正財，主祿位穩定，務實慎重，為家庭與事業之穩固支柱。", advice: "宜守本業，深耕財源，積沙成塔，乃富足平安之造。" },
+                "偏財": { effect: "提綱取偏財，主格局宏大，擅於捕捉機遇，乃經邦緯國、流通資源之雄才。", advice: "宜在商海或變動之局中求勝，獲利豐沛，聲名遠播。" },
+                "食神": { effect: "提綱取食神，主秀氣流行，福壽悠長，為人寬宏，具備極佳之藝術鑑賞力。", advice: "宜在專業技術或美學領域發展，悠遊自在，天祿豐厚。" },
+                "傷官": { effect: "提綱取傷官，主才華傲世，追求突破，表達力驚人，具備經天緯地之創意。", advice: "宜從事高難度之創作或變革之職，異軍突起，才名遠揚。" },
+                "比肩": { effect: "提綱取比肩，主性格剛毅，獨立開創，自我意識堅定而不隨波逐流。", advice: "宜獨當一面發展，憑藉個人實力成就一派，堅不可摧。" },
+                "劫財": { effect: "提綱取劫財，主意志頑強，勇於協作，在紛雜之局中具備極強之爆發力。", advice: "宜在群體中發揮整合能量，主動出擊，必能奪旗立功。" }
+            };
+
+            const elementStrengthDict = {
+                "wood": "本局木氣充盈，春意盎然，生機博發，具備向上開展之凌雲壯志。",
+                "fire": "本局火氣升騰，萬物昭蘇，展現出高度之熱忱與溫暖人心之力量。",
+                "earth": "本局土氣紮實，厚德載物，建立了極其穩固之基業與誠信之本。",
+                "metal": "本局金氣堅銳，清音震遠，具備極佳之裁斷力與公正無私之品德。",
+                "water": "本局水氣靈動，智慧如淵，帶來了無窮之變化與滋養萬物之才華。"
+            };
+
+            const healthDict = {
+                "wood": "氣在東方，宜注重肝膽經絡之疏泄，平時宜靜心休養，防木氣過燥。",
+                "fire": "氣在南方，宜注重心血循環之平穩，適時沈澱情緒，防火氣上炎。",
+                "earth": "氣在中宮，宜注重脾胃運化之守恆，飲食貴在節制，防土氣鬱結。",
+                "metal": "氣在西方，宜注重肺部呼吸之清肅，多親近自然清氣，防金氣凋零。",
+                "water": "氣在北方，宜注重腎臟精氣之蓄積，充足休眠，防五行之水枯涸。"
+            };
+
+            const qiStateDict = { "長生": "氣象萬千，具備蓬勃之生命力", "沐浴": "情懷浪漫，帶有洗滌塵囂之氣", "冠帶": "威儀具備，正值奮發有為之時", "臨官": "祿地顯赫，能量鼎盛而能挑大樑", "帝旺": "氣勢極盛，具備統御萬物之威", "衰": "轉向內斂，處事趨於老練穩重", "病": "心思敏銳，對環境變遷觀察微入", "死": "精神高潔，直覺力與玄學緣分極深", "墓": "守成蓄積，具備極佳之理財與保藏天賦", "絕": "重生之兆，常有絕處逢生之玄機", "胎": "潛力無限，處於孕育新局之關鍵期", "養": "平穩蓄勢，培植深厚之根基以待時" };
+            const branchDict = { "子": "幽潛深邃之智慧", "丑": "堅毅沈穩之定力", "寅": "開創領袖之朝氣", "卯": "靈動纖細之柔情", "辰": "包容整合之器識", "巳": "明察秋毫之洞見", "午": "光明磊落之精神", "未": "內斂守信之操守", "申": "明敏決斷之執行", "酉": "追求卓越之精進", "戌": "忠誠護衛之責任", "亥": "隨緣豁達之大智" };
+            const flowDict = { "比肩": "宜自強不息，親自操刀，確立自我價值。", "劫財": "宜廣結善緣，主動開拓，注意利潤分配。", "食神": "宜優遊自在，發揮才藝，享受生活美感。", "傷官": "宜打破常規，推陳出新，唯需謹言慎行。", "偏財": "宜果斷出擊，捕捉奇機，財源流通如意。", "正財": "宜務實經營，深耕本業，積累人生厚度。", "七殺": "宜磨練意志，迎接挑戰，成就英雄之名。", "正官": "宜循序漸進，樹立榜樣，提升社會聲望。", "偏印": "宜探索深幽，鑽研玄學，成就獨門造詣。", "正印": "宜沈澱身心，進修學問，得長輩之庇蔭。" };
+
+            const counts = {wood:0, fire:0, earth:0, metal:0, water:0};
+            [d.p.yG, d.p.yZ, d.p.mG, d.p.mZ, d.p.dG, d.p.dZ, d.p.hG, d.p.hZ].forEach(c => { if(FiveElements[c]) counts[FiveElements[c]]++; });
+            let maxEl = "wood", minEl = "wood";
+            Object.keys(counts).forEach(k => { if(counts[k] > counts[maxEl]) maxEl = k; if(counts[k] < counts[minEl]) minEl = k; });
+
+            const climate = ["寅","卯","辰"].includes(d.p.mZ) ? "春季溫潤" : ["巳","午","未"].includes(d.p.mZ) ? "夏季炎熱" : ["申","酉","戌"].includes(d.p.mZ) ? "秋季涼爽" : "冬季寒冷";
+            const currentPattern = getTenGod(d.p.dG, hiddenStems[d.p.mZ][0]) || '比肩';
+            const currentYearGan = d.currentLunarYear ? d.currentLunarYear.charAt(0) : "";
+            const flowTenGod = getTenGod(d.p.dG, currentYearGan);
+            const daYunEl = d.currentDaYun !== "--" ? FiveElements[d.currentDaYun[0]] : "wood";
+
+            const content = document.getElementById('analysisContent');
+            content.innerHTML = `
+                <div class="analysis-card">
+                    <h4>1. 「格局」確立與司令分析</h4>
+                    <p>生於<strong>${d.p.mZ}月</strong>，時值${climate}。命局提綱落於「<strong>${currentPattern}</strong>」，${patternFullDict[currentPattern] ? patternFullDict[currentPattern].effect : ""}</p>
+                </div>
+                <div class="analysis-card">
+                    <h4>2. 五行量化與調候建議</h4>
+                    <p>${elementStrengthDict[maxEl]} 然全局${climate}，宜注重<strong>${getElementText(Gan[Zhi.indexOf(d.p.mZ)%10])}</strong>氣之疏導，以達水火既濟之妙。</p>
+                </div>
+                <div class="analysis-card">
+                    <h4>3. 十神心性深度論述</h4>
+                    <p>日元「<strong>${d.p.dG}</strong>」乃命局核心，${dayMasterFullDict[d.p.dG] ? dayMasterFullDict[d.p.dG].personality : ""} 於「${currentPattern}」格中交感，${dayMasterFullDict[d.p.dG] ? dayMasterFullDict[d.p.dG].style : ""}</p>
+                </div>
+                <div class="analysis-card">
+                    <h4>4. 胎元命宮先天稟賦</h4>
+                    <p>胎元為【<strong>${d.taiYuan}</strong>】，命宮為【<strong>${d.mingGong}</strong>】。此為先天之真氣所在，代表在應對命運波折時，具備不屈之韌性與天賜之化解直覺。</p>
+                </div>
+                <div class="analysis-card">
+                    <h4>5. 日元十二運星能量解析</h4>
+                    <p>日柱正臨「<strong>${getQiState(d.p.dG, d.p.dZ)}</strong>」，暗示核心能量${qiStateDict[getQiState(d.p.dG, d.p.dZ)] || ""}。配合月柱「${getQiState(d.p.dG, d.p.mZ)}」，人生中期步履穩健。</p>
+                </div>
+                <div class="analysis-card">
+                    <h4>6. 地支藏干隱藏資源</h4>
+                    <p>地支深藏無窮造化。特別是日支「${d.p.dZ}」中蘊含之靈氣，賦予您<strong>${branchDict[d.p.dZ] || "深厚底蘊"}</strong>，此乃逢凶化吉之暗助力量。</p>
+                </div>
+                <div class="analysis-card">
+                    <h4>7. 地支刑沖會合動態</h4>
+                    <p>地支構成行為之根基。您帶有<strong>${["寅","申","巳","亥"].includes(d.p.dZ) ? "四馬地之動態開創力" : ["子","午","卯","酉"].includes(d.p.dZ) ? "四桃花之絕佳人緣感召力" : "四庫地之沈穩整合能量"}</strong>，此為突破現狀之關鍵。</p>
+                </div>
+                <div class="analysis-card">
+                    <h4>8. 通關藥病平衡方案</h4>
+                    <p>能量重心聚焦於「${getElementText(maxEl)}」，${patternFullDict[currentPattern] ? patternFullDict[currentPattern].advice : ""} 掌握此化機，方能於歲月浮沈中立於不敗之地。</p>
+                </div>
+                <div class="analysis-card">
+                    <h4>9. 中醫五行能量導引</h4>
+                    <p>${healthDict[minEl] || "全局氣水平衡。"} 針對<strong>${getElementText(minEl)}</strong>氣所繫之系統，宜順應四季節律進行保養，使五行循環不失其序。</p>
+                </div>
+                <div class="analysis-card">
+                    <h4>10. 神煞解析與貴人分布</h4>
+                    <p>命帶【<strong>${d.shenSha.length > 0 ? d.shenSha.join("、") : "吉星暗合"}</strong>】。此等神妙能量常於關鍵時刻現身，化作貴人之提攜或機緣之指引。</p>
+                </div>
+                <div class="analysis-card">
+                    <h4>11. 當前大運十年指引</h4>
+                    <p>正處「<strong>${d.currentDaYun}</strong>」大運。這十年乃${getElementText(d.currentDaYun[0])}能主導之關鍵期，建議順應此氣運之特質，精準布局，必能功倍事半。</p>
+                </div>
+                <div class="analysis-card">
+                    <h4>12. ${d.currentLunarYear} 流年專論</h4>
+                    <p>今年歲次【<strong>${d.currentLunarYear}</strong>】，天干「${currentYearGan}」化為您的<strong>${flowTenGod || "年度主星"}</strong>。${flowDict[flowTenGod] || "宜靜觀其變，蓄勢而發，布局未來之大計。"}</p>
+                </div>
+            `;
+        }
+
+        async function downloadPDF() {
+            const page1 = document.getElementById('pdfPage1');
+            const page2 = document.getElementById('pdfPage2');
+            const downloadBtn = document.getElementById('downloadBtnContainer');
+            const header2 = document.getElementById('reportHeader2');
+            const userName = document.getElementById('userName').value || "訪客";
+            downloadBtn.style.display = 'none'; header2.style.display = 'block';
+            try {
+                const { jsPDF } = window.jspdf; const pdf = new jsPDF('l', 'mm', 'a4'); 
+                const pdfWidth = pdf.internal.pageSize.getWidth(); const pdfHeight = pdf.internal.pageSize.getHeight();
+                const margin = 10; const maxW = pdfWidth - margin * 2; const maxH = pdfHeight - margin * 2;
+                const captureOptions = { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1200, letterRendering: true };
+                const canvas1 = await html2canvas(page1, captureOptions);
+                const imgData1 = canvas1.toDataURL('image/jpeg', 1.0);
+                let fW1 = maxW; let fH1 = (canvas1.height * maxW) / canvas1.width;
+                if (fH1 > maxH) { fH1 = maxH; fW1 = (canvas1.width * maxH) / canvas1.height; }
+                pdf.addImage(imgData1, 'JPEG', margin + (maxW - fW1) / 2, margin + (maxH - fH1) / 2, fW1, fH1);
+                pdf.addPage();
+                const canvas2 = await html2canvas(page2, captureOptions);
+                const imgData2 = canvas2.toDataURL('image/jpeg', 1.0);
+                let fW2 = maxW; let fH2 = (canvas2.height * maxW) / canvas2.width;
+                if (fH2 > maxH) { fH2 = maxH; fW2 = (canvas2.width * maxH) / canvas2.height; }
+                pdf.addImage(imgData2, 'JPEG', margin + (maxW - fW2) / 2, margin + (maxH - fH2) / 2, fW2, fH2);
+                pdf.save(`${userName}_八字命理深度分析報告.pdf`);
+            } catch (err) { console.error("PDF 匯出失敗:", err); alert("PDF 匯出發生錯誤。"); } finally { downloadBtn.style.display = 'flex'; header2.style.display = 'none'; }
+        }
+    </script>
+</body>
+</html>
