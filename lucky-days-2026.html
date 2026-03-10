@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026年丙午年天赦日全紀錄</title>
+    <style>
+        :root {
+            --temple-red: #8B0000;
+            --palace-gold: #FFD700;
+            --paper-bg: #fdf5e6;
+            --ink-black: #222;
+            --accent-gold: #D4AF37;
+        }
+
+        body {
+            background-color: #222; /* 深色背景襯托紙張 */
+            background-image: radial-gradient(#333 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 廟宇風格主容器 */
+        .poster {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--paper-bg);
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png'); /* 紙張質感 */
+            border: 15px solid var(--temple-red);
+            border-image: linear-gradient(to bottom, #8B0000, #B22222) 1;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            position: relative;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        /* 裝飾性祥雲 */
+        .cloud {
+            position: absolute;
+            width: 100px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        .cloud-tl { top: 20px; left: 20px; }
+        .cloud-tr { top: 20px; right: 20px; transform: scaleX(-1); }
+
+        /* 標題區域 */
+        header {
+            text-align: center;
+            border-bottom: 3px double var(--accent-gold);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        /* 標題文字與燈籠的容器 */
+        .title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .lantern {
+            font-size: 2.2em;
+            flex-shrink: 0;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2));
+        }
+
+        h1 {
+            color: var(--temple-red);
+            font-size: 2.8em;
+            margin: 0;
+            letter-spacing: 0.1em;
+            text-shadow: 2px 2px 0px var(--accent-gold);
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            background: var(--temple-red);
+            color: var(--palace-gold);
+            display: inline-block;
+            padding: 5px 20px;
+            margin-top: 15px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            border-radius: 4px;
+        }
+
+        /* 日期網格 */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--accent-gold);
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 5px 15px rgba(184, 134, 11, 0.2);
+        }
+
+        /* 四角花紋裝飾 */
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 5px; left: 5px; right: 5px; bottom: 5px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            pointer-events: none;
+        }
+
+        .season-tag {
+            font-weight: bold;
+            color: white;
+            background: var(--temple-red);
+            padding: 2px 10px;
+            font-size: 0.8em;
+            position: absolute;
+            top: -10px;
+            left: 20px;
+        }
+
+        .date-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .solar-date {
+            font-size: 1.5em;
+            font-weight: 900;
+            color: var(--ink-black);
+        }
+
+        .lunar-date {
+            color: #d44;
+            font-weight: bold;
+        }
+
+        .description {
+            font-size: 0.92em;
+            color: #444;
+            margin-top: 10px;
+            line-height: 1.5;
+            text-align: justify;
+        }
+
+        /* 特殊狀態樣式 */
+        .passed {
+            opacity: 0.6;
+            background: #eee;
+        }
+        .passed .solar-date { text-decoration: line-through; }
+
+        .super-lucky {
+            border: 2px solid var(--temple-red);
+            background: #fff5f5;
+        }
+        .super-lucky::after {
+            content: "✦ 大吉 ✦";
+            position: absolute;
+            bottom: -10px;
+            right: 10px;
+            background: var(--palace-gold);
+            color: var(--temple-red);
+            font-size: 0.7em;
+            padding: 2px 8px;
+            font-weight: bold;
+        }
+
+        /* 底部提醒 */
+        .notice {
+            margin-top: 40px;
+            padding: 20px;
+            border: 1px solid var(--accent-gold);
+            background: rgba(212, 175, 55, 0.05);
+            font-size: 0.92em;
+            line-height: 1.8;
+        }
+
+        .notice-title {
+            color: var(--temple-red);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        @media (max-width: 700px) {
+            .grid { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8em; }
+            .lantern { font-size: 1.5em; }
+            .poster { border-width: 10px; padding: 25px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="poster">
+    <!-- 裝飾性 SVG 雲紋 -->
+    <svg class="cloud cloud-tl" viewBox="0 0 100 100"><path d="M10 50 Q30 20 50 50 T90 50" stroke="#D4AF37" fill="transparent" stroke-width="2"/></svg>
+    <svg class="cloud cloud-tr" viewBox="0 0 100 100"><path d="M10 50 Q30 20 50 50 T90 50" stroke="#D4AF37" fill="transparent" stroke-width="2"/></svg>
+
+    <header>
+        <div class="title-container">
+            <span class="lantern">🏮</span>
+            <h1>2026 丙午年・天赦全書</h1>
+            <span class="lantern">🏮</span>
+        </div>
+        <div class="subtitle">上天開恩赦罪・百事大吉</div>
+    </header>
+
+    <div class="grid">
+        <!-- 3月5日 -->
+        <div class="card passed">
+            <span class="season-tag">春季</span>
+            <div class="date-row">
+                <span class="solar-date">3月5日</span>
+                <span class="lunar-date">正月十七</span>
+            </div>
+            <div class="description">
+                驚蟄同日。春雷動、萬物生，適合除舊佈新、清除負能。
+            </div>
+        </div>
+
+        <!-- 5月19日 -->
+        <div class="card">
+            <span class="season-tag">夏季</span>
+            <div class="date-row">
+                <span class="solar-date">5月19日</span>
+                <span class="lunar-date">四月初三</span>
+            </div>
+            <div class="description">
+                生機蓬勃。適合祈求身體健康、事業順利、補運求財。
+            </div>
+        </div>
+
+        <!-- 7月19日 -->
+        <div class="card super-lucky">
+            <span class="season-tag">夏季・最強</span>
+            <div class="date-row">
+                <span class="solar-date">7月19日</span>
+                <span class="lunar-date">六月初六</span>
+            </div>
+            <div class="description">
+                <b>天赦日遇天貺日。</b>開天門，能量加倍！適合祈求大願、補財庫、謝神。
+            </div>
+        </div>
+
+        <!-- 8月18日 -->
+        <div class="card">
+            <span class="season-tag">秋季</span>
+            <div class="date-row">
+                <span class="solar-date">8月18日</span>
+                <span class="lunar-date">七月初六</span>
+            </div>
+            <div class="description">
+                位於農曆七月。最宜懺悔業障、祈求平安、消災解厄。
+            </div>
+        </div>
+
+        <!-- 11月3日 -->
+        <div class="card">
+            <span class="season-tag">冬季</span>
+            <div class="date-row">
+                <span class="solar-date">11月3日</span>
+                <span class="lunar-date">九月廿五</span>
+            </div>
+            <div class="description">
+                萬物收斂。適合沉澱自省、累積福德、修養身心。
+            </div>
+        </div>
+
+        <!-- 1月19日 -->
+        <div class="card">
+            <span class="season-tag">冬季・結尾</span>
+            <div class="date-row">
+                <span class="solar-date">1月19日</span>
+                <span class="lunar-date">十二月十二</span>
+            </div>
+            <div class="description">
+                年度最終大赦。農曆年尾送舊迎新，適合謝神、大掃除。
+            </div>
+        </div>
+    </div>
+
+    <div class="notice">
+        <span class="notice-title">【 轉運秘訣 】</span>
+        1. <b>不宜殺生：</b> 天赦日主慈悲，建議當日齋戒或減少肉食。<br>
+        2. <b>吉時祭拜：</b> 建議於清晨 5 點至下午 3 點前完成祈福。<br>
+        3. <b>行善佈施：</b> 捐款、助人，在此日功德加倍。
+    </div>
+
+    <footer>
+        <p>※ 國曆 2027 年 1 月 19 日屬丙午年農曆年底 ※</p>
+        <p>心誠則靈 ‧ 好運長隨</p>
+    </footer>
+</div>
+
+</body>
+</html>
